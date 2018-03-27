@@ -17,25 +17,29 @@ class Product {
 
   double price;
   double priceNew = 0.0;
+  bool isSale = false;
+  String datePriceNew;
 
   Product(
       {this.id, this.originalId, this.retailerId, this.name, this.category, this.brand, this.barCode,
-        this.volume, this.volumeValue, this.image, this.price, this.priceNew});
+        this.volume, this.volumeValue, this.image, this.price, this.priceNew, this.isSale, this.datePriceNew});
 
   factory Product.fromJson(Map<String, dynamic> json) =>
       new Product(
-        id: json['id'],
-        originalId: json['original_id'],
-        retailerId: json['retailer_id'],
-        name: json['name'] as String,
-        category: json['category'] as String,
-        brand: json['brand'] as String,
-        barCode: json['barCode'] as String,
-        volume: json['volume'] as String,
-        volumeValue: json['volumeValue'] as String,
-        image: json['image'] as String,
-        price: json['price'],
-        priceNew: json['price_new'],
+          id: json['id'],
+          originalId: json['original_id'],
+          retailerId: json['retailer_id'],
+          name: json['name'] as String,
+          category: json['category'] as String,
+          brand: json['brand'] as String,
+          barCode: json['barCode'] as String,
+          volume: json['volume'] as String,
+          volumeValue: json['volumeValue'] as String,
+          image: json['image'] as String,
+          price: json['price'],
+          priceNew: json['price_new'],
+          isSale: json['is_sale'] == 1,
+          datePriceNew: json['price_new_date']
       );
 
   get hasNewPriceIcon =>

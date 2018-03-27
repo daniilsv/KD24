@@ -6,7 +6,6 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^0.1.0
-  shared_preferences: ^0.4.0
   sqflite: ^0.8.4
   async_loader: ^0.1.1
   json_annotation: ^0.2.2

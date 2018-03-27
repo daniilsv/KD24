@@ -40,12 +40,11 @@ create table products (
   `volumeValue` text,
   `image` text,
   `price` real,
-  `price_new` real
+  `price_new` real,
+  `price_new_date` text,
+  `is_sale` integer
   )
 ''');
-      },
-      onUpgrade: (Database db, int versionOld, int versionNew) {
-        if (versionNew == 2) {}
       },
     );
   }

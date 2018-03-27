@@ -161,6 +161,14 @@ class ScreenRetailerState extends State<ScreenRetailer> {
                       product.priceNew = double.parse(price);
                     },
                   ),
+                  new Row(
+                    children: <Widget>[
+                      new Text("Акционная цена"),
+                      new Switch(onChanged: (bool value) {
+                        product.isSale = value;
+                      }, value: product.isSale)
+                    ],
+                  ),
                   new RoundedButton(
                     buttonName: "Сохранить",
                     onTap: () {
@@ -402,9 +410,17 @@ class ScreenRetailerState extends State<ScreenRetailer> {
       showInSnackBar('Please fix the errors in red before submitting.');
     } else {
       form.save();
+      var now = new DateTime.now();
+      product.datePriceNew =
+      "${_twoDigits(now.day)}.${_twoDigits(now.month)}.${_fourDigits(
+          now.year)}T${_twoDigits(
+          now.hour)}:${_twoDigits(now.minute)}:${_twoDigits(now
+          .second)}"; //"dd.MM.yyyyTHH:mm:ss"
       DataBase db = await DataBase.getInstance();
       await db.update("products", "`id` = ${product.id}", {
-        "price_new": product.priceNew
+        "is_sale": product.isSale ? 1 : 0,
+        "price_new": product.priceNew,
+        "price_new_date": product.datePriceNew
       });
       setState(() {
         _productsLoaderState.currentState.reloadState();
@@ -414,4 +430,17 @@ class ScreenRetailerState extends State<ScreenRetailer> {
     }
   }
 
+  static String _twoDigits(int n) {
+    if (n >= 10) return "${n}";
+    return "0${n}";
+  }
+
+  static String _fourDigits(int n) {
+    int absN = n.abs();
+    String sign = n < 0 ? "-" : "";
+    if (absN >= 1000) return "$n";
+    if (absN >= 100) return "${sign}0$absN";
+    if (absN >= 10) return "${sign}00$absN";
+    return "${sign}000$absN";
+  }
 }

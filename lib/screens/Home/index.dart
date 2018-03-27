@@ -28,6 +28,45 @@ class ScreenHomeState extends State<ScreenHome> {
 
   bool _wasUpdate = false;
 
+  _showToSend() async {
+    DataBase db = await DataBase.getInstance();
+    var data = await db.getRows("products", where: "`price_new` != 'null'");
+
+    for (Map product in data) {
+      toSend.add(new Product.fromJson(product));
+    }
+
+    showDialog<Null>(
+      context: context,
+      barrierDismissible: true,
+      child: new AlertDialog(
+        title: new Text('Выгрузить цены'),
+        content: new SingleChildScrollView(
+          child: new ListBody(
+            children: <Widget>[
+              new Text("Вы точно хотите выгрузить обновление цен?"),
+              new Text(
+                  "Будет выгружена информация о ценах ${toSend.length} товаров")
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          new FlatButton(
+            child: new Text('Отмена', style: new TextStyle(color: Colors.red)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          new FlatButton(
+            child: new Text(
+                'Выгрузить', style: new TextStyle(color: Colors.green)),
+            onPressed: _sendPrices,
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<Null> _askSearch() async {
     await showDialog(
       context: context,
@@ -152,20 +191,8 @@ class ScreenHomeState extends State<ScreenHome> {
       RefreshIndicatorState>();
   final GlobalKey<AsyncLoaderState> _retailersLoaderState = new GlobalKey<
       AsyncLoaderState>();
-  final GlobalKey<AsyncLoaderState> _toSendLoaderState = new GlobalKey<
-      AsyncLoaderState>();
 
   List<Product> toSend = [];
-
-  getCountToSend() async {
-    DataBase db = await DataBase.getInstance();
-    var data = await db.getRows("products", where: "`price_new` NOT NULL");
-
-    for (Map product in data) {
-      toSend.add(new Product.fromJson(product));
-    }
-    return toSend.length;
-  }
 
   @override
   void initState() {
@@ -176,6 +203,14 @@ class ScreenHomeState extends State<ScreenHome> {
   Widget build(BuildContext context) {
     return new Scaffold(
         key: _scaffoldKey,
+        floatingActionButton:
+        new FloatingActionButton(
+            backgroundColor: Colors.green,
+            child: new Icon(Icons.send,
+                color: Colors.white
+            ),
+            onPressed: _showToSend
+        ),
         appBar: new AppBar(
           title: new Text(
               "Выберите магазин",
@@ -183,29 +218,6 @@ class ScreenHomeState extends State<ScreenHome> {
                   color: Colors.white
               )),
           actions: <Widget>[
-            new AsyncLoader(
-              key: _toSendLoaderState,
-              initState: () async => await getCountToSend(),
-              renderLoad: () =>
-              new Center(child: new CircularProgressIndicator()),
-              renderError: ([error]) => const Text(""),
-              renderSuccess: ({data}) =>
-              new MaterialButton(
-                  height: 50.0,
-                  child: new Stack(
-                    children: <Widget>[
-                      new Positioned(
-                          child: new Icon(Icons.send, color: Colors.white)),
-                      new Positioned(
-                          child: new Text(data.toString(),
-                              style: new TextStyle(color: Colors.black)))
-                    ],
-                  ),
-                  onPressed: () {
-                    _askSearch();
-                  }
-              ),
-            ),
             new MaterialButton(
                 height: 50.0,
                 child: new Icon(Icons.search, color: Colors.white),
@@ -233,4 +245,25 @@ class ScreenHomeState extends State<ScreenHome> {
     );
   }
 
+  _sendPrices() async {
+    Navigator.of(context).pop();
+    List<Map> data = [];
+    toSend.forEach((Product product) {
+      data.add({
+        "retailerId": product.retailerId,
+        "productId": product.originalId,
+        "typeId": product.isSale ? 1 : 0,
+        "price": product.priceNew,
+        "date": product.datePriceNew
+      });
+    });
+    await HttpQuery.executeJsonQuery("Prices/sendPriceArray",
+        method: "post",
+        params: {
+          "data": data
+        }
+    );
+
+    print(data);
+  }
 }
