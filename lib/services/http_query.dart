@@ -31,17 +31,22 @@ class HttpQuery {
       response =
       await http.get(hrefTo(action, query: params), headers: _headers,);
     }
-    print(response.body);
-    var ret = JSON.decode(response.body);
-    if (ret is Map) {
-      if (ret.containsKey("Message"))
-        return {"error": ret["Message"]};
+    var ret;
+    if (response.statusCode == 200) {
+      print(response.body);
+      ret = JSON.decode(response.body);
+      if (ret is Map) {
+        if (ret.containsKey("Message"))
+          return {"error": ret["Message"]};
 
-      if (ret.containsKey("error_description"))
-        return {"error": ret["error_description"]};
+        if (ret.containsKey("error_description"))
+          return {"error": ret["error_description"]};
 
-      if (ret.containsKey("error"))
-        return {"error": ret["error"]};
+        if (ret.containsKey("error"))
+          return {"error": ret["error"]};
+      }
+    } else if (response.statusCode == 204) {
+      ret = {"success": true};
     }
     return ret;
   }

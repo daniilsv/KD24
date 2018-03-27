@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:async_loader/async_loader.dart';
 import "package:flutter/material.dart";
@@ -31,7 +32,7 @@ class ScreenHomeState extends State<ScreenHome> {
   _showToSend() async {
     DataBase db = await DataBase.getInstance();
     var data = await db.getRows("products", where: "`price_new` != 'null'");
-
+    toSend = [];
     for (Map product in data) {
       toSend.add(new Product.fromJson(product));
     }
@@ -43,10 +44,12 @@ class ScreenHomeState extends State<ScreenHome> {
         title: new Text('Выгрузить цены'),
         content: new SingleChildScrollView(
           child: new ListBody(
-            children: <Widget>[
+            children: toSend.length != 0 ? <Widget>[
               new Text("Вы точно хотите выгрузить обновление цен?"),
               new Text(
                   "Будет выгружена информация о ценах ${toSend.length} товаров")
+            ] : <Widget>[
+              new Text("Вы еще не уточнили ни одной цены."),
             ],
           ),
         ),
@@ -57,11 +60,11 @@ class ScreenHomeState extends State<ScreenHome> {
               Navigator.of(context).pop();
             },
           ),
-          new FlatButton(
+          toSend.length != 0 ? new FlatButton(
             child: new Text(
                 'Выгрузить', style: new TextStyle(color: Colors.green)),
             onPressed: _sendPrices,
-          ),
+          ) : new Text(""),
         ],
       ),
     );
@@ -247,6 +250,9 @@ class ScreenHomeState extends State<ScreenHome> {
 
   _sendPrices() async {
     Navigator.of(context).pop();
+    if (toSend.length == 0) {
+      return;
+    }
     List<Map> data = [];
     toSend.forEach((Product product) {
       data.add({
@@ -257,13 +263,24 @@ class ScreenHomeState extends State<ScreenHome> {
         "date": product.datePriceNew
       });
     });
-    await HttpQuery.executeJsonQuery("Prices/sendPriceArray",
+    var ret = await HttpQuery.executeJsonQuery("Prices/sendPriceArray",
         method: "post",
         params: {
-          "data": data
+          "arrPrices": JSON.encode(data)
         }
     );
 
-    print(data);
+    if ((ret as Map).containsKey("success")) {
+      DataBase db = await DataBase.getInstance();
+      for (Product product in toSend) {
+        await db.update("products", "`id`=${product.id}", {
+          "price": product.priceNew,
+          "price_new": null
+        });
+      }
+      showInSnackBar("${toSend.length} обновлений цен успешно выгружены");
+    } else {
+      showInSnackBar("Что-то пошло не так...");
+    }
   }
 }
