@@ -1,20 +1,19 @@
 import 'dart:async';
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:kd24/data/database.dart';
-
+import 'package:kd24_shop_spy/data/database.dart';
 
 @JsonSerializable()
 class UserLoginData {
   String username;
   String password;
 
-  UserLoginData({this.username, this.password});
+  UserLoginData({this.username = "", this.password = ""});
 
   static Future<UserLoginData> fromDataBase() async {
     DataBase db = await DataBase.getInstance();
     return new UserLoginData(
-      username: await db.getField("config", "key='username'", "value"),
+      username: await db.getField("config", "key='username'", "value") ?? "",
       password: null,
     );
   }
@@ -44,7 +43,7 @@ class User {
         token: await db.getField("config", "key='token'", "value"),
         tokenType: await db.getField("config", "key='token_type'", "value"),
         tokenExpires: int.parse(
-            await db.getField("config", "key='token_expires'", "value") ?? "0")
-    );
+            await db.getField("config", "key='token_expires'", "value") ??
+                "0"));
   }
 }

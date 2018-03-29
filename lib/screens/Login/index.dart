@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kd24/classes/user.dart';
-import 'package:kd24/components/Buttons/roundedButton.dart';
-import 'package:kd24/components/TextFields/inputField.dart';
-import 'package:kd24/data/database.dart';
-import 'package:kd24/services/http_query.dart';
-import 'package:kd24/services/validations.dart';
-import 'package:kd24/theme/style.dart';
-
+import 'package:kd24_shop_spy/classes/user.dart';
+import 'package:kd24_shop_spy/components/Buttons/roundedButton.dart';
+import 'package:kd24_shop_spy/components/TextFields/inputField.dart';
+import 'package:kd24_shop_spy/data/database.dart';
+import 'package:kd24_shop_spy/routes.dart';
+import 'package:kd24_shop_spy/services/http_query.dart';
+import 'package:kd24_shop_spy/services/validations.dart';
+import 'package:kd24_shop_spy/theme/style.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({Key key}) : super(key: key);
@@ -17,16 +17,11 @@ class ScreenLogin extends StatefulWidget {
 }
 
 class ScreenLoginState extends State<ScreenLogin> {
-  BuildContext context;
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController scrollController = new ScrollController();
   UserLoginData user = new UserLoginData();
   bool autovalidate = false;
-
-  onPressed(String routeName) {
-    Navigator.of(context).pushNamed(routeName);
-  }
 
   void showInSnackBar(String value) {
     _scaffoldKey.currentState
@@ -40,14 +35,15 @@ class ScreenLoginState extends State<ScreenLogin> {
       showInSnackBar('Please fix the errors in red before submitting.');
     } else {
       form.save();
-      HttpQuery.executeJsonQuery("token",
+      HttpQuery
+          .executeJsonQuery("token",
           params: {
             'username': user.username,
             'password': user.password,
             'grant_type': "password"
           },
-          method: "post"
-      ).then((var data) {
+          method: "post")
+          .then((var data) {
         if (data.containsKey("error")) {
           showInSnackBar(data["error"]);
           return;
@@ -73,18 +69,14 @@ class ScreenLoginState extends State<ScreenLogin> {
           });
         });
         User.localUser = _userData;
-        Navigator.pushReplacementNamed(context, "/Home");
+
+        Routes.navigateTo(context, "/shops");
       });
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    UserLoginData.fromDataBase().then((UserLoginData _user) {
-      user = _user;
-    });
-    this.context = context;
     final Size screenSize = MediaQuery
         .of(context)
         .size;
@@ -109,12 +101,11 @@ class ScreenLoginState extends State<ScreenLogin> {
                         children: <Widget>[
                           new InputField(
                               hintText: "Username",
-                              initialText: user.username ?? '',
                               obscureText: false,
                               textInputType: TextInputType.text,
                               textStyle: textStyle,
                               textFieldColor: textFieldColor,
-                              icon: Icons.mail_outline,
+                              icon: Icons.account_circle,
                               iconColor: Colors.black,
                               bottomMargin: 20.0,
                               validateFunction: Validations.validateUsername,
@@ -127,7 +118,7 @@ class ScreenLoginState extends State<ScreenLogin> {
                               textInputType: TextInputType.text,
                               textStyle: textStyle,
                               textFieldColor: textFieldColor,
-                              icon: Icons.lock_open,
+                              icon: Icons.lock,
                               iconColor: Colors.black,
                               bottomMargin: 30.0,
                               validateFunction: Validations.validatePassword,

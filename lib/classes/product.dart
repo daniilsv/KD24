@@ -6,7 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 class Product {
   int id;
   int originalId;
-  int retailerId;
+  int shopId;
   String category;
   String name;
   String brand;
@@ -21,14 +21,14 @@ class Product {
   String datePriceNew;
 
   Product(
-      {this.id, this.originalId, this.retailerId, this.name, this.category, this.brand, this.barCode,
+      {this.id, this.originalId, this.shopId, this.name, this.category, this.brand, this.barCode,
         this.volume, this.volumeValue, this.image, this.price, this.priceNew, this.isSale, this.datePriceNew});
 
   factory Product.fromJson(Map<String, dynamic> json) =>
       new Product(
           id: json['id'],
           originalId: json['original_id'],
-          retailerId: json['retailer_id'],
+          shopId: json['shpo_id'],
           name: json['name'] as String,
           category: json['category'] as String,
           brand: json['brand'] as String,

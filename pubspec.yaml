@@ -1,5 +1,4 @@
-name: kd24
-description: KD24
+name: kd24_shop_spy
 
 dependencies:
   flutter:
@@ -9,16 +8,11 @@ dependencies:
   sqflite: ^0.8.4
   async_loader: ^0.1.1
   json_annotation: ^0.2.2
-  path_provider: ^0.4.0
+  path_provider: ^0.3.0
   material_search: ^0.2.1
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-
-  build_runner: ^0.7.6
-  json_serializable: ^0.3.2
-
+  barcode_scan: ^0.0.3
+  fluro: ^1.1.0
+  flutter_advanced_networkimage: ^0.2.2
 
 
 # For information on the generic Dart part of this file, see the

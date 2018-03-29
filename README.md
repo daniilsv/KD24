@@ -1,4 +1,4 @@
-# app
+# kd24_shop_spy
 
 A new Flutter project.
 

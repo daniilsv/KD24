@@ -17,7 +17,7 @@ class InputField extends StatelessWidget {
   //passing props in the Constructor.
   InputField({this.key,
     this.hintText,
-    this.initialText = '',
+    this.initialText = "",
     this.focusNode,
     this.obscureText,
     this.textInputType,

@@ -2,20 +2,20 @@ import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
 
-
 class DataBase {
   static DataBase _instance;
 
   static Future<DataBase> getInstance() {
-    if (_instance == null)
-      _instance = new DataBase();
+    if (_instance == null) _instance = new DataBase();
     return new Future(() => _instance);
   }
 
   Database db;
 
   Future open(String path) async {
-    db = await openDatabase(path, version: 1,
+    db = await openDatabase(
+      path,
+      version: 1,
       onCreate: (Database db, int version) {
         db.execute('''
 create table config ( 
@@ -23,7 +23,7 @@ create table config (
   `value` text not null)
 ''');
         db.execute('''
-create table retailers ( 
+create table shops ( 
   `id` integer primary key, 
   `name` text not null)
 ''');
@@ -31,7 +31,7 @@ create table retailers (
 create table products ( 
   `id` integer primary key autoincrement, 
   `original_id` integer,
-  `retailer_id` integer,
+  `shop_id` integer,
   `category` text not null,
   `name` text not null,  
   `brand` text not null,
@@ -67,8 +67,8 @@ create table products (
 
   Future<List<Map>> getRows(String table,
       {String where, String order, String group}) async {
-    List<Map> ret = await db.query(
-        table, where: where, orderBy: order, groupBy: group);
+    List<Map> ret =
+    await db.query(table, where: where, orderBy: order, groupBy: group);
     if (ret.length > 0) {
       return ret;
     }
@@ -94,7 +94,5 @@ create table products (
     return await db.delete(table, where: where);
   }
 
-
   Future close() async => db.close();
-
 }

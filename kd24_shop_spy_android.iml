@@ -3,6 +3,7 @@
   <component name="FacetManager">
     <facet type="android" name="Android">
       <configuration>
+        <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="GEN_FOLDER_RELATIVE_PATH_APT" value="/android/gen" />
         <option name="GEN_FOLDER_RELATIVE_PATH_AIDL" value="/android/gen" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/android/AndroidManifest.xml" />
@@ -13,9 +14,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/out" />
-    <output-test url="file:///test/kd24_android" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$/android">
       <sourceFolder url="file://$MODULE_DIR$/android/app/src/main/java" isTestSource="false" />
