@@ -48,7 +48,6 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                 children: <Widget>[
                   new Stack(
                     children: <Widget>[
-                      // The initial contents of the drawer.
                       new FadeTransition(
                         opacity: _drawerContentsOpacity,
                         child: new Column(

@@ -10,7 +10,7 @@ class Product {
   String category;
   String name;
   String brand;
-  String barCode;
+  String barcode;
   String volume;
   String volumeValue;
   String image;
@@ -21,7 +21,7 @@ class Product {
   String datePriceNew;
 
   Product(
-      {this.id, this.originalId, this.shopId, this.name, this.category, this.brand, this.barCode,
+      {this.id, this.originalId, this.shopId, this.name, this.category, this.brand, this.barcode,
         this.volume, this.volumeValue, this.image, this.price, this.priceNew, this.isSale, this.datePriceNew});
 
   factory Product.fromJson(Map<String, dynamic> json) =>
@@ -32,7 +32,7 @@ class Product {
           name: json['name'] as String,
           category: json['category'] as String,
           brand: json['brand'] as String,
-          barCode: json['barCode'] as String,
+          barcode: json['barcode'] as String,
           volume: json['volume'] as String,
           volumeValue: json['volumeValue'] as String,
           image: json['image'] as String,

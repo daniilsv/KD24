@@ -27,6 +27,7 @@ class ScreenSettingsState extends State<ScreenSettings> {
     FormState form = formKey.currentState;
     form.save();
     Config.saveToDB();
+    Navigator.pop(context);
   }
 
   @override

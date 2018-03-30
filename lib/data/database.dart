@@ -13,21 +13,19 @@ class DataBase {
   Database db;
 
   Future open(String path) async {
-    db = await openDatabase(
-      path,
-      version: 1,
-      onCreate: (Database db, int version) {
-        db.execute('''
+    db = await openDatabase(path, version: 2,
+        onCreate: (Database db, int version) {
+          db.execute('''
 create table config ( 
   `key` text primary key not null, 
   `value` text not null)
 ''');
-        db.execute('''
+          db.execute('''
 create table shops ( 
   `id` integer primary key, 
   `name` text not null)
 ''');
-        db.execute('''
+          db.execute('''
 create table products ( 
   `id` integer primary key autoincrement, 
   `original_id` integer,
@@ -35,7 +33,7 @@ create table products (
   `category` text not null,
   `name` text not null,  
   `brand` text not null,
-  `barCode` text not null,
+  `barcode` text not null,
   `volume` text,
   `volumeValue` text,
   `image` text,
@@ -44,9 +42,24 @@ create table products (
   `price_new_date` text,
   `is_sale` integer
   )
+  CREATE INDEX index_id_shopid ON products (original_id, shop_id);
 ''');
-      },
-    );
+        }, onUpgrade: (Database db, int versionOld, int versionNew) {});
+  }
+
+  Future insertList(String table, List<Map> datas) async {
+    List keys = datas.first.keys.toList();
+    List vals = keys.map((var l) {
+      return "?";
+    }).toList();
+    String sql = "INSERT OR REPLACE INTO $table ( ${keys.join(
+        ",")} ) VALUES ( ${vals.join(",")} );";
+    print(sql);
+    return db.transaction((txn) async {
+      for (Map data in datas) {
+        await txn.execute(sql, data.values.toList());
+      }
+    });
   }
 
   Future<int> insert(String table, Map data) async {

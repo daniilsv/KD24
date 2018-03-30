@@ -104,33 +104,39 @@ class ScreenProductsState extends State<ScreenProducts> {
       List<Map> rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}'" +
-              (searchPhrase != null ? " AND `name` LIKE '$searchPhrase%'" : ""),
+              (searchPhrase != null
+                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '$searchPhrase%'"
+                  : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
-        rows.forEach((var product) {
+        for (var product in rows) {
           _items.add(new Product.fromJson(product));
-        });
+        }
       }
     } else {
       List<Map> rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` = 'null'" +
-              (searchPhrase != null ? " AND `name` LIKE '$searchPhrase%'" : ""),
+              (searchPhrase != null
+                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '$searchPhrase%'"
+                  : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
-        rows.forEach((var product) {
+        for (var product in rows) {
           _items.add(new Product.fromJson(product));
-        });
+        }
       }
       rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` != 'null'" +
-              (searchPhrase != null ? " AND `name` LIKE '$searchPhrase%'" : ""),
+              (searchPhrase != null
+                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '$searchPhrase%'"
+                  : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
-        rows.forEach((var product) {
+        for (var product in rows) {
           _items.add(new Product.fromJson(product));
-        });
+        }
       }
     }
     return _items;
@@ -145,9 +151,9 @@ class ScreenProductsState extends State<ScreenProducts> {
     }
     if ((data as List).length == 0) return false;
 
-    var db = await DataBase.getInstance();
+    List<Map> _items = [];
     for (Map product in data) {
-      await db.updateOrInsert("products", "`id`=${product['id']}", {
+      _items.add({
         "original_id": int.parse(product['id']),
         "shop_id": widget.shopId,
         "category": product['category'],
@@ -159,6 +165,8 @@ class ScreenProductsState extends State<ScreenProducts> {
         "image": product['image']
       });
     }
+    var db = await DataBase.getInstance();
+    db.insertList("products", _items);
     return true;
   }
 
