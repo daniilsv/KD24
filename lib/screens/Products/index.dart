@@ -226,7 +226,7 @@ class ScreenProductsState extends State<ScreenProducts> {
         onSubmitted: onSearchType,
         onClear: onSearchClear,
         buildDefaultAppBar: buildAppBar,
-        needBarCodeCamera: false);
+        needBarCodeCamera: true);
   }
 
   void onSearchType(String value) {
