@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -8,8 +9,8 @@ import 'package:kd24_shop_spy/services/http_query.dart';
 
 class Utils {
   static String twoDigits(int n) {
-    if (n >= 10) return "${n}";
-    return "0${n}";
+    if (n >= 10) return "$n";
+    return "0$n";
   }
 
   static String fourDigits(int n) {
@@ -23,11 +24,12 @@ class Utils {
 
   static List<Product> toSend = [];
 
-  static sendProducts(BuildContext context) async {
+  static Future<String> sendProducts(BuildContext context) async {
     DataBase db = await DataBase.getInstance();
-    var data = await db.getRows("products", where: "`price_new` IS NOT NULL");
+    var rows =
+    await db.getRows("products", where: "`price_new_date` IS NOT NULL");
     toSend = [];
-    for (Map product in data) {
+    for (Map product in rows) {
       toSend.add(new Product.fromJson(product));
     }
 
@@ -40,38 +42,38 @@ class Utils {
           child: new ListBody(
             children: toSend.length != 0
                 ? <Widget>[
-                    new Text("Вы точно хотите выгрузить обновление цен?"),
-                    new Text(
-                        "Будет выгружена информация о ценах ${toSend.length} товаров")
-                  ]
+              new Text("Вы точно хотите выгрузить обновление цен?"),
+              new Text(
+                  "Будет выгружена информация о ценах ${toSend.length} товаров")
+            ]
                 : <Widget>[
-                    new Text("Вы еще не уточнили ни одной цены."),
-                  ],
+              new Text("Вы еще не уточнили ни одной цены."),
+            ],
           ),
         ),
         actions: <Widget>[
           new FlatButton(
             child: new Text('Отмена', style: new TextStyle(color: Colors.red)),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(null);
             },
           ),
           toSend.length != 0
               ? new FlatButton(
-                  child: new Text('Выгрузить',
-                      style: new TextStyle(color: Colors.green)),
-                  onPressed: () {
-                    String res = _sendPrices();
-                    Navigator.of(context).pop(res);
-                  },
-                )
+            child: new Text('Выгрузить',
+                style: new TextStyle(color: Colors.green)),
+            onPressed: () async {
+              String res = await _sendPrices();
+              Navigator.of(context).pop(res);
+            },
+          )
               : new Text(""),
         ],
       ),
     );
   }
 
-  static _sendPrices() async {
+  static Future<String> _sendPrices() async {
     List<Map> data = [];
     toSend.forEach((Product product) {
       data.add({
@@ -89,7 +91,7 @@ class Utils {
       DataBase db = await DataBase.getInstance();
       for (Product product in toSend) {
         await db.update("products", "`id`=${product.id}",
-            {"price": product.priceNew, "price_new": null});
+            {"price": product.priceNew, "price_new_date": null});
       }
       return "${toSend.length} обновлений цен успешно выгружены";
     } else {
@@ -102,10 +104,21 @@ class Utils {
     db.delete("config", "`key`='token'");
     db.delete("config", "`key`='token_type'");
     db.delete("config", "`key`='token_expires'");
-    Routes.navigateTo(context, "/login");
+    Routes.backTo(context, "/shops");
+    Routes.navigateTo(context, "/login", replace: true);
   }
 
   static showInSnackBar(GlobalKey<ScaffoldState> key, String value) {
     key.currentState.showSnackBar(new SnackBar(content: new Text(value)));
+  }
+
+  static String getDateTimeNow() {
+    var now = new DateTime.now();
+    return "${twoDigits(now.day)}"
+        ".${twoDigits(now.month)}"
+        ".${fourDigits(now.year)}"
+        "T${twoDigits(now.hour)}"
+        ":${twoDigits(now.minute)}"
+        ":${twoDigits(now.second)}";
   }
 }

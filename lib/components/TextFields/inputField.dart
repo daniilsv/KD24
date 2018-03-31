@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
-  IconData icon;
-  String hintText;
-  String initialText;
-  TextInputType textInputType;
-  Color textFieldColor, iconColor;
-  bool obscureText;
-  double bottomMargin;
-  TextStyle textStyle, hintStyle;
-  var validateFunction;
-  var onSaved;
-  var focusNode;
-  Key key;
+  final IconData icon;
+  final String hintText;
+  final String initialText;
+  final TextInputType textInputType;
+  final Color textFieldColor, iconColor;
+  final bool obscureText;
+  final double bottomMargin;
+  final TextStyle textStyle, hintStyle;
+  final FormFieldValidator<String> validateFunction;
+  final FormFieldSetter<String> onSaved;
+  final FocusNode focusNode;
+  final Key key;
 
   //passing props in the Constructor.
   InputField({this.key,

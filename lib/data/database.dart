@@ -73,12 +73,16 @@ create table shops (
     return await db.update(table, data, where: where);
   }
 
-  Future<int> updateOrInsert(String table, String where, Map data) async {
-    var row = await getRow(table, where);
-    if (row == null)
-      return await insert(table, data);
-    else
-      return await update(table, where, data);
+  Future<int> updateOrInsert(String table, Map data) async {
+    List keys = data.keys.map((var l) {
+      return "`$l`";
+    }).toList();
+    List vals = keys.map((var l) {
+      return "?";
+    }).toList();
+    String sql = "INSERT OR REPLACE INTO `$table` ( ${keys.join(
+        ",")} ) VALUES ( ${vals.join(",")} );";
+    return db.rawInsert(sql, data.values.toList());
   }
 
   Future<List<Map>> getRows(String table,

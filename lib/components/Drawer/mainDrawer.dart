@@ -3,9 +3,13 @@ import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/utils.dart';
 
 class DrawerMain extends StatefulWidget {
-  GlobalKey<ScaffoldState> scaffoldKey;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
-  DrawerMain({Key key, GlobalKey<ScaffoldState> this.scaffoldKey})
+  ListTile settingsWidget;
+
+  ListTile sendWidget;
+
+  DrawerMain({Key key, this.scaffoldKey, this.settingsWidget, this.sendWidget})
       : super(key: key);
 
   @override
@@ -64,22 +68,20 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                                 Routes.backTo(context, "/shops");
                               },
                             ),
-                            new ListTile(
-                              leading: const Icon(Icons.send),
-                              title: new Text('Отправить изменения'),
-                              onTap: () =>
-                                  Utils
-                                      .sendProducts(context)
-                                      .then((String res) {
-                                    Utils.showInSnackBar(
-                                        widget.scaffoldKey, res);
-                                  }),
-                            ),
-                            new ListTile(
+                            widget.sendWidget != null
+                                ? widget.sendWidget
+                                : new Row(),
+                            widget.settingsWidget != null
+                                ? widget.settingsWidget
+                                : new ListTile(
                               leading: const Icon(Icons.settings),
                               title: new Text('Настройки'),
                               onTap: () =>
-                                  Routes.navigateTo(context, "/settings"),
+                                  Routes
+                                      .navigateTo(context, "/settings")
+                                      .then((var a) {
+                                    Navigator.pop(context);
+                                  }),
                             ),
                             new ListTile(
                               leading: const Icon(Icons.exit_to_app),

@@ -9,12 +9,9 @@ import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/http_query.dart';
 
 class ScreenCategories extends StatefulWidget {
-  ScreenCategories({Key key, String shopId}) : super(key: key) {
-    this.shopId = int.parse(shopId);
-  }
+  ScreenCategories({Key key, this.shopId}) : super(key: key);
 
-  int shopId;
-  Shop shop = new Shop();
+  final int shopId;
 
   @override
   ScreenCategoriesState createState() => new ScreenCategoriesState();
@@ -26,6 +23,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
+  Shop shop = new Shop();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   getCategories() async {
@@ -45,19 +43,21 @@ class ScreenCategoriesState extends State<ScreenCategories> {
         return new Row(children: [
           new Expanded(
               child: new Card(
-            child: new Stack(children: <Widget>[
-              new MaterialButton(
+                child: new MaterialButton(
                   height: 50.0,
-                  child: new Text(
-                    _items[index]["category"],
-                    style: new TextStyle(
-                        fontSize: 24.0, fontWeight: FontWeight.bold),
+                  child: new ListTile(
+                    title: new Text(
+                      _items[index]["category"],
+                      style: new TextStyle(
+                          fontSize: 24.0, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  onPressed: () => Routes.navigateTo(
-                      context,
-                      "/shop/${widget
-                                  .shopId}/${_items[index]["category"]}")),
-            ]),
+                  onPressed: () =>
+                      Routes.navigateTo(
+                          context,
+                          "/shop/${widget.shopId}/"
+                              "${_items[index]["category"]}"),
+                ),
           ))
         ]);
       },
@@ -115,37 +115,36 @@ class ScreenCategoriesState extends State<ScreenCategories> {
   Future _getAppBarTitle() async {
     DataBase db = await DataBase.getInstance();
     Map _shop = await db.getRow("shops", "`id`=${widget.shopId}");
-    widget.shop = new Shop.fromJson(_shop);
-    return new Text(widget.shop.name,
-        style: new TextStyle(color: Colors.white));
+    shop = new Shop.fromJson(_shop);
+    return new Text(shop.name, style: new TextStyle(color: Colors.white));
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        key: _scaffoldKey,
-        drawer: new DrawerMain(),
-        appBar: new AppBar(
-          title: new AsyncLoader(
-            initState: () async => await _getAppBarTitle(),
-            renderLoad: () =>
-            new Center(child: new CircularProgressIndicator()),
-            renderSuccess: ({data}) => data,
-          ),
-          backgroundColor: Colors.orange,
-          centerTitle: true,
+      key: _scaffoldKey,
+      drawer: new DrawerMain(),
+      appBar: new AppBar(
+        title: new AsyncLoader(
+          initState: () async => await _getAppBarTitle(),
+          renderLoad: () => new Center(child: new CircularProgressIndicator()),
+          renderSuccess: ({data}) => data,
         ),
-        body: new RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: () => _handleRefresh(),
-            child: new AsyncLoader(
-              key: _productsLoaderState,
-              initState: () async => await getCategories(),
-              renderLoad: () =>
-                  new Center(child: new CircularProgressIndicator()),
-              renderError: ([error]) =>
-                  new Text('Странно.. Товары не загружаются.'),
-              renderSuccess: ({data}) => data,
-            )));
+        backgroundColor: Colors.orange,
+        centerTitle: true,
+      ),
+      body: new RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () => _handleRefresh(),
+        child: new AsyncLoader(
+          key: _productsLoaderState,
+          initState: () async => await getCategories(),
+          renderLoad: () => new Center(child: new CircularProgressIndicator()),
+          renderError: ([error]) =>
+          new Text('Странно.. Товары не загружаются.'),
+          renderSuccess: ({data}) => data,
+        ),
+      ),
+    );
   }
 }

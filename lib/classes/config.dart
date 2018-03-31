@@ -15,7 +15,7 @@ class Config {
 
   static Future saveToDB() async {
     DataBase.getInstance().then((DataBase db) {
-      db.updateOrInsert("config", "key='move_down_done'", {
+      db.updateOrInsert("config", {
         "key": "move_down_done",
         "value": moveDownDone ? "1" : "0",
       });

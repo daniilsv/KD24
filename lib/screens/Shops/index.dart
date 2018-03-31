@@ -47,19 +47,20 @@ class ScreenShopsState extends State<ScreenShops> {
         var shop = _items[index];
         return new Row(children: [
           new Expanded(
-              child: new Card(
-            child: new Stack(children: <Widget>[
-              new MaterialButton(
+            child: new Card(
+              child: new MaterialButton(
                   height: 50.0,
-                  child: new Text(
-                    shop.name,
-                    style: new TextStyle(
-                        fontSize: 24.0, fontWeight: FontWeight.bold),
+                  child: new ListTile(
+                    title: new Text(
+                      shop.name,
+                      style: new TextStyle(
+                          fontSize: 24.0, fontWeight: FontWeight.bold),
+                    ),
                   ),
                   onPressed: () =>
                       Routes.navigateTo(context, "/shop/${shop.id}")),
-            ]),
-          ))
+            ),
+          )
         ]);
       },
     );
@@ -137,14 +138,18 @@ class ScreenShopsState extends State<ScreenShops> {
   Widget build(BuildContext context) {
     return new Scaffold(
       key: _scaffoldKey,
-      drawer: new DrawerMain(),
+      drawer: new DrawerMain(
+        sendWidget: new ListTile(
+          leading: const Icon(Icons.send),
+          title: new Text('Отправить изменения'),
+          onTap: () => openSendModal(),
+        ),
+      ),
       floatingActionButton: new FloatingActionButton(
-          backgroundColor: Colors.green,
-          child: new Icon(Icons.send, color: Colors.white),
-          onPressed: () =>
-              Utils.sendProducts(context).then((String res) {
-                Utils.showInSnackBar(_scaffoldKey, res);
-              })),
+        backgroundColor: Colors.green,
+        child: new Icon(Icons.send, color: Colors.white),
+        onPressed: () => openSendModal(),
+      ),
       appBar: searchBar.build(context),
       body: new RefreshIndicator(
         key: _refreshIndicatorKey,
@@ -159,5 +164,14 @@ class ScreenShopsState extends State<ScreenShops> {
         ),
       ),
     );
+  }
+
+  openSendModal() async {
+    var ret = await Utils.sendProducts(context);
+    if (ret != null && ret is String) {
+      Navigator.pop(context);
+      _scaffoldKey.currentState
+          .showSnackBar(new SnackBar(content: new Text(ret)));
+    }
   }
 }

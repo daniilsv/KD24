@@ -50,19 +50,19 @@ class ScreenLoginState extends State<ScreenLogin> {
         }
         var _userData = new User.fromJson(data);
         DataBase.getInstance().then((DataBase db) {
-          db.updateOrInsert("config", "key='username'", {
+          db.updateOrInsert("config", {
             "key": "username",
             "value": user.username,
           });
-          db.updateOrInsert("config", "key='token'", {
+          db.updateOrInsert("config", {
             "key": "token",
             "value": _userData.token,
           });
-          db.updateOrInsert("config", "key='token_type'", {
+          db.updateOrInsert("config", {
             "key": "token_type",
             "value": _userData.tokenType,
           });
-          db.updateOrInsert("config", "key='token_expires'", {
+          db.updateOrInsert("config", {
             "key": "token_expires",
             "value": _userData.tokenExpires +
                 new DateTime.now().millisecondsSinceEpoch ~/ 1000,

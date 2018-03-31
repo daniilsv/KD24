@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async_loader/async_loader.dart';
+import 'package:fluro/fluro.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:kd24_shop_spy/classes/config.dart';
@@ -14,13 +15,10 @@ import 'package:kd24_shop_spy/services/http_query.dart';
 import 'package:kd24_shop_spy/services/utils.dart';
 
 class ScreenProducts extends StatefulWidget {
-  ScreenProducts({Key key, String shopId, this.category}) : super(key: key) {
-    this.shopId = int.parse(shopId);
-  }
+  ScreenProducts({Key key, this.shopId, this.category}) : super(key: key);
 
-  int shopId;
-  Shop shop;
-  String category;
+  final int shopId;
+  final String category;
 
   @override
   ScreenProductsState createState() => new ScreenProductsState();
@@ -31,20 +29,21 @@ class ScreenProductsState extends State<ScreenProducts> {
 
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
 
+  Shop shop;
   var _items = [];
 
   String searchPhrase;
-  static bool wasUpdate = false;
+  bool wasUpdate = false;
 
   getProducts() async {
     if (_items.length == 0 || (wasUpdate && searchPhrase != null)) {
       _items = await _loadFromDatabase();
-      if (searchPhrase == null && _items.length == 0) {
+      if (searchPhrase != null) if (searchPhrase == null &&
+          _items.length == 0) {
         bool status = await _handleRefresh();
         if (status) _items = await _loadFromDatabase();
       }
       wasUpdate = true;
-      searchPhrase = null;
     }
 
     return new ListView.builder(
@@ -74,29 +73,34 @@ class ScreenProductsState extends State<ScreenProducts> {
                       ),
                       new Row(
                         children: <Widget>[
-                          new Text(product.price ?? "",
-                              style: new TextStyle(color: Colors.grey)),
+                          product.price != null
+                              ? new Text(product.price.toString() ?? "",
+                              style: new TextStyle(color: Colors.grey))
+                              : const Text(""),
                           product.price != null
                               ? new Icon(Icons.arrow_forward, size: 12.0)
-                              : new Text(""),
+                              : const Text(""),
                           product.priceNew == null
-                              ? new Icon(Icons.close, color: Colors.red)
-                              : new Text(product.priceNew ?? "",
+                              ? const Icon(Icons.close, color: Colors.red)
+                              : new Text(product.priceNew.toString() ?? "",
                               style: new TextStyle(color: Colors.green)),
-                          new Text("за " +
-                              product.volumeValue +
-                              " " +
-                              product.volumeText),
-                          product.priceNew == null
-                              ? new Text("")
-                              : product.isSale
-                              ? new Icon(Icons.star)
-                              : new Icon(Icons.star_border),
+                          new Padding(
+                              padding: new EdgeInsets.only(left: 10.0),
+                              child: new Text(
+                                  "за ${product.volumeValue} ${product
+                                      .volumeText}")),
+                          product.priceNew != null && product.isSale
+                              ? const Icon(Icons.star_border)
+                              : const Text(""),
                         ],
                       )
                     ]),
                     onPressed: () =>
-                        Routes.navigateTo(context, "/product/${product.id}")),
+                        openProduct(
+                            "/shop/${widget.shopId}/"
+                                "${product.category}/"
+                                "${product.id}",
+                            index)),
           ))
         ]);
       },
@@ -189,10 +193,9 @@ class ScreenProductsState extends State<ScreenProducts> {
   Future _getAppBarTitle() async {
     DataBase db = await DataBase.getInstance();
     Map _shop = await db.getRow("shops", "`id`=${widget.shopId}");
-    widget.shop = new Shop.fromJson(_shop);
+    shop = new Shop.fromJson(_shop);
     return new ListTile(
-      title:
-      new Text(widget.shop.name, style: new TextStyle(color: Colors.white)),
+      title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
       subtitle:
       new Text(widget.category, style: new TextStyle(color: Colors.white)),
     );
@@ -236,20 +239,59 @@ class ScreenProductsState extends State<ScreenProducts> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        key: _scaffoldKey,
-        drawer: new DrawerMain(),
-        appBar: searchBar.build(context),
-        body: new RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: () => _handleRefresh(),
-            child: new AsyncLoader(
-              key: _productsLoaderState,
-              initState: () async => await getProducts(),
-              renderLoad: () =>
-                  new Center(child: new CircularProgressIndicator()),
-              renderError: ([error]) =>
-                  new Text('Странно.. Товары не загружаются.'),
-              renderSuccess: ({data}) => data,
-            )));
+      key: _scaffoldKey,
+      drawer: new DrawerMain(
+        sendWidget: new ListTile(
+          leading: const Icon(Icons.send),
+          title: new Text('Отправить изменения'),
+          onTap: () => openSendModal(),
+        ),
+        settingsWidget: new ListTile(
+          leading: const Icon(Icons.settings),
+          title: new Text('Настройки'),
+          onTap: () => openSettings(),
+        ),
+      ),
+      appBar: searchBar.build(context),
+      body: new RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () => _handleRefresh(),
+        child: new AsyncLoader(
+          key: _productsLoaderState,
+          initState: () async => await getProducts(),
+          renderLoad: () => new Center(child: new CircularProgressIndicator()),
+          renderError: ([error]) =>
+          new Text('Странно.. Товары не загружаются.'),
+          renderSuccess: ({data}) => data,
+        ),
+      ),
+    );
+  }
+
+  openProduct(String path, int i) async {
+    var ret = await Routes.navigateTo(context, path);
+    if (ret is Product) {
+      _items[i] = ret;
+      _productsLoaderState.currentState.reloadState();
+    }
+  }
+
+  openSendModal() async {
+    var ret = await Utils.sendProducts(context);
+    if (ret != null && ret is String) {
+      Navigator.pop(context);
+      _scaffoldKey.currentState
+          .showSnackBar(new SnackBar(content: new Text(ret)));
+      await new Future.delayed(new Duration(seconds: 1));
+      Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+          replace: true, transition: TransitionType.fadeIn);
+    }
+  }
+
+  openSettings() async {
+    await Routes.navigateTo(context, "/settings");
+    Navigator.pop(context);
+    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+        replace: true, transition: TransitionType.fadeIn);
   }
 }

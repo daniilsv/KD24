@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:kd24_shop_spy/screens/Categories/index.dart';
@@ -28,29 +30,41 @@ class Routes {
 
     _router.define("/shop/:id", handler: new Handler(
         handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenCategories(shopId: params["id"][0]);
+          return new ScreenCategories(shopId: int.parse(params["id"][0]));
         }));
 
     _router.define("/shop/:shop_id/:category", handler: new Handler(
         handlerFunc: (BuildContext context, Map<String, dynamic> params) {
           return new ScreenProducts(
-              shopId: params["shop_id"][0], category: params["category"][0]);
+              shopId: int.parse(params["shop_id"][0]),
+              category: params["category"][0]);
         }));
 
-    _router.define("/product/:id", handler: new Handler(
+    _router.define("/shop/:shop_id/:category/:id", handler: new Handler(
         handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenProduct(id: params["id"][0]);
+          return new ScreenProduct(
+              shopId: int.parse(params["shop_id"][0]),
+              category: params["category"][0],
+              id: int.parse(params["id"][0]));
         }));
+
+//    _router.define("/shop/:shop_id/:category/add/:barcode", handler: new Handler(
+//        handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+//      return new ScreenProductAdd(barcode: params["barcode"][0]);
+//    }));
   }
 
-  static void navigateTo(BuildContext context, String route,
+  static Future<dynamic> navigateTo(BuildContext context, String route,
       {TransitionType transition = TransitionType.inFromRight,
         bool replace = false}) {
-    _router.navigateTo(context, route,
+    return _router.navigateTo(context, route,
         replace: replace, transition: transition);
   }
 
-  static void backTo(BuildContext context, String route) {
-    navigateTo(context, route, replace: true);
+  static void backTo(BuildContext context, String path) {
+    Navigator.of(context).popUntil((Route<dynamic> route) {
+      return route == null ||
+          route is ModalRoute && route.settings.name == path;
+    });
   }
 }
