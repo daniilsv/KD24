@@ -82,13 +82,17 @@ class ScreenLoginState extends State<ScreenLogin> {
         .size;
     return new Scaffold(
       key: _scaffoldKey,
+      appBar: new AppBar(
+        title: new Center(child: new Text('К двери 24')),
+        backgroundColor: Colors.orange,
+      ),
       body: new SingleChildScrollView(
         controller: scrollController,
         child: new Container(
-          padding: new EdgeInsets.all(16.0),
           child: new Column(
             children: <Widget>[
               new Container(
+                padding: new EdgeInsets.all(16.0),
                 height: screenSize.height / 2,
                 child: new Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
