@@ -9,17 +9,13 @@ import 'package:kd24_shop_spy/classes/shop.dart';
 import 'package:kd24_shop_spy/components/Drawer/mainDrawer.dart';
 import 'package:kd24_shop_spy/components/Search/searchBar.dart';
 import 'package:kd24_shop_spy/data/database.dart';
+import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/http_query.dart';
 import 'package:kd24_shop_spy/services/utils.dart';
 
 class ScreenProducts extends StatefulWidget {
   ScreenProducts({Key key, String shopId, this.category}) : super(key: key) {
     this.shopId = int.parse(shopId);
-    DataBase.getInstance().then((DataBase db) {
-      db.getRow("shops", "`id`=$shopId").then((Map _shop) {
-        shop = new Shop.fromJson(_shop);
-      });
-    });
   }
 
   int shopId;
@@ -55,41 +51,52 @@ class ScreenProductsState extends State<ScreenProducts> {
       padding: kMaterialListPadding,
       itemCount: _items.length,
       itemBuilder: (BuildContext context, int index) {
-        Product _product = _items[index];
+        Product product = _items[index];
         return new Row(children: [
           new Expanded(
               child: new Card(
-            child: new Stack(children: <Widget>[
-              new MaterialButton(
-                  height: 50.0,
-                  child: new Center(
-                      child: new ListTile(
-                    title: new Text(_product.name),
-                    subtitle: new Text(_product.category),
-                    leading: new Column(
-                      children: <Widget>[
-                        new Image(
+                child: new MaterialButton(
+                    child: new Column(children: <Widget>[
+                      new ListTile(
+                        title: new Text(product.name),
+                        subtitle: new Text(product.barcode),
+                        leading: new Image(
                           image: new AdvancedNetworkImage(
                               HttpQuery.hrefTo("prodbasecontent/Images",
-                                  baseUrl:
-                                      "prodbasestorage.blob.core.windows.net",
-                                  file: _product.image),
+                                  baseUrl: "prodbasestorage.blob.core.windows.net",
+                                  file: product.image),
                               useDiskCache: true),
                           fit: BoxFit.contain,
-                          height: 50.0,
+                          height: 80.0,
                           width: 40.0,
-                          alignment: Alignment.center,
+                          alignment: Alignment.centerLeft,
                         ),
-                        _product.hasNewPriceIcon
-                      ],
-                    ),
-                  )),
-                  onPressed: () => null),
-              new Row(
-                children: <Widget>[
-                ],
-              )
-            ]),
+                      ),
+                      new Row(
+                        children: <Widget>[
+                          new Text(product.price ?? "",
+                              style: new TextStyle(color: Colors.grey)),
+                          product.price != null
+                              ? new Icon(Icons.arrow_forward, size: 12.0)
+                              : new Text(""),
+                          product.priceNew == null
+                              ? new Icon(Icons.close, color: Colors.red)
+                              : new Text(product.priceNew ?? "",
+                              style: new TextStyle(color: Colors.green)),
+                          new Text("за " +
+                              product.volumeValue +
+                              " " +
+                              product.volumeText),
+                          product.priceNew == null
+                              ? new Text("")
+                              : product.isSale
+                              ? new Icon(Icons.star)
+                              : new Icon(Icons.star_border),
+                        ],
+                      )
+                    ]),
+                    onPressed: () =>
+                        Routes.navigateTo(context, "/product/${product.id}")),
           ))
         ]);
       },

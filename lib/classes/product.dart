@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
@@ -20,9 +18,23 @@ class Product {
   bool isSale = false;
   String datePriceNew;
 
-  Product(
-      {this.id, this.originalId, this.shopId, this.name, this.category, this.brand, this.barcode,
-        this.volume, this.volumeValue, this.image, this.price, this.priceNew, this.isSale, this.datePriceNew});
+  Product({this.id,
+    this.originalId,
+    this.shopId,
+    this.name,
+    this.category,
+    this.brand,
+    this.barcode,
+    this.volume,
+    this.volumeValue,
+    this.image,
+    this.price,
+    this.priceNew,
+    this.isSale,
+    this.datePriceNew});
+
+  String get volumeText =>
+      volume == "Вес" ? "кг" : volume == "Объем" ? "л" : "шт";
 
   factory Product.fromJson(Map<String, dynamic> json) =>
       new Product(
@@ -39,12 +51,5 @@ class Product {
           price: json['price'],
           priceNew: json['price_new'],
           isSale: json['is_sale'] == 1,
-          datePriceNew: json['price_new_date']
-      );
-
-  get hasNewPriceIcon =>
-      priceNew != null ?
-      new Text(priceNew.toString(), style: new TextStyle(color: Colors.green))
-          : new Icon(Icons.clear, color: Colors.red, size: 14.0,);
-
+          datePriceNew: json['price_new_date']);
 }

@@ -2,6 +2,7 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:kd24_shop_spy/screens/Categories/index.dart';
 import 'package:kd24_shop_spy/screens/Login/index.dart';
+import 'package:kd24_shop_spy/screens/Product/index.dart';
 import 'package:kd24_shop_spy/screens/Products/index.dart';
 import 'package:kd24_shop_spy/screens/Settings/index.dart';
 import 'package:kd24_shop_spy/screens/Shops/index.dart';
@@ -36,10 +37,10 @@ class Routes {
               shopId: params["shop_id"][0], category: params["category"][0]);
         }));
 
-//    _router.define("/product/:id", handler: new Handler(
-//        handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-//      return new ScreenProduct(shopId: params["id"][0]);
-//    }));
+    _router.define("/product/:id", handler: new Handler(
+        handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+          return new ScreenProduct(id: params["id"][0]);
+        }));
   }
 
   static void navigateTo(BuildContext context, String route,
