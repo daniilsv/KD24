@@ -86,11 +86,13 @@ class ScreenShopsState extends State<ScreenShops> {
       return false;
     }
     if ((data as List).length == 0) return false;
-    var db = await DataBase.getInstance();
+
+    List<Map> _items = [];
     for (Map shop in data) {
-      await db.updateOrInsert("shops", "`id`=${shop['id']}",
-          {"id": shop['id'], "name": shop['name']});
+      _items.add({"id": shop['id'], "name": shop['name']});
     }
+    var db = await DataBase.getInstance();
+    await db.insertList("shops", _items);
     return true;
   }
 
@@ -139,7 +141,10 @@ class ScreenShopsState extends State<ScreenShops> {
       floatingActionButton: new FloatingActionButton(
           backgroundColor: Colors.green,
           child: new Icon(Icons.send, color: Colors.white),
-          onPressed: () => Utils.sendProducts(context)),
+          onPressed: () =>
+              Utils.sendProducts(context).then((String res) {
+                Utils.showInSnackBar(_scaffoldKey, res);
+              })),
       appBar: searchBar.build(context),
       body: new RefreshIndicator(
         key: _refreshIndicatorKey,

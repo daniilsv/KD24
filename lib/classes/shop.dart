@@ -7,7 +7,7 @@ class Shop {
   bool isVisible;
   bool isVisibleApk;
 
-  Shop({this.id, this.name, this.isVisible, this.isVisibleApk});
+  Shop({this.id, this.name = "", this.isVisible, this.isVisibleApk});
 
   factory Shop.fromJson(Map<String, dynamic> json) => new Shop(
         id: json['id'],

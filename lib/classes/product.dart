@@ -34,7 +34,7 @@ class Product {
           brand: json['brand'] as String,
           barcode: json['barcode'] as String,
           volume: json['volume'] as String,
-          volumeValue: json['volumeValue'] as String,
+          volumeValue: json['volume_value'] as String,
           image: json['image'] as String,
           price: json['price'],
           priceNew: json['price_new'],

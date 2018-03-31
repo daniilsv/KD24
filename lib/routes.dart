@@ -43,7 +43,8 @@ class Routes {
   }
 
   static void navigateTo(BuildContext context, String route,
-      {TransitionType transition, bool replace = false}) {
+      {TransitionType transition = TransitionType.inFromRight,
+        bool replace = false}) {
     _router.navigateTo(context, route,
         replace: replace, transition: transition);
   }

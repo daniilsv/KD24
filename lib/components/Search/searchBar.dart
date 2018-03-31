@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 typedef AppBar AppBarCallback(BuildContext context);
@@ -50,19 +54,18 @@ class SearchBar {
   /// The last built default AppBar used for colors and such.
   AppBar _defaultAppBar;
 
-  SearchBar(
-      {@required this.setState,
-      @required this.buildDefaultAppBar,
-      this.onSubmitted,
-      this.onType,
-      this.onClear,
-      this.controller,
-      this.hintText = 'Search',
-      this.inBar = true,
-      this.colorBackButton = true,
-      this.closeOnSubmit = true,
-      this.clearOnSubmit = true,
-      this.showClearButton = true}) {
+  SearchBar({@required this.setState,
+    @required this.buildDefaultAppBar,
+    this.onSubmitted,
+    this.onType,
+    this.onClear,
+    this.controller,
+    this.hintText = 'Search',
+    this.inBar = true,
+    this.colorBackButton = true,
+    this.closeOnSubmit = true,
+    this.clearOnSubmit = true,
+    this.showClearButton = true}) {
     if (this.controller == null) {
       this.controller = new TextEditingController();
     }
@@ -105,6 +108,8 @@ class SearchBar {
         .of(context)
         .addLocalHistoryEntry(new LocalHistoryEntry(onRemove: () {
       setState(() {
+        controller.text = "";
+        onType("");
         _isSearching = false;
       });
     }));
@@ -138,12 +143,12 @@ class SearchBar {
     Color buttonColor = inBar
         ? null
         : (colorBackButton
-            ? _defaultAppBar.backgroundColor ??
-                theme.primaryColor ??
-                Colors.grey.shade400
-            : Colors.grey.shade400);
+        ? _defaultAppBar.backgroundColor ??
+        theme.primaryColor ??
+        Colors.grey.shade400
+        : Colors.grey.shade400);
     Color buttonDisabledColor =
-        inBar ? new Color.fromRGBO(255, 255, 255, 0.25) : Colors.grey.shade300;
+    inBar ? new Color.fromRGBO(255, 255, 255, 0.25) : Colors.grey.shade300;
 
     Color textColor = inBar ? Colors.white70 : Colors.black54;
 
@@ -151,43 +156,49 @@ class SearchBar {
       leading: new BackButton(color: buttonColor),
       backgroundColor: barColor,
       title: new Directionality(
-          textDirection: Directionality.of(context),
-          child: new TextField(
-            key: new Key('SearchBarTextField'),
-            keyboardType: TextInputType.text,
-            style: new TextStyle(color: textColor, fontSize: 16.0),
-            decoration: new InputDecoration(
-                hintText: hintText,
-                hintStyle: new TextStyle(color: textColor, fontSize: 16.0),
-                border: null),
-            onSubmitted: (String val) async {
-              if (closeOnSubmit) {
-                await Navigator.maybePop(context);
-              }
+        textDirection: Directionality.of(context),
+        child: new TextFormField(
+          style: new TextStyle(color: textColor, fontSize: 16.0),
+          key: new Key('SearchBarTextField'),
+          keyboardType: TextInputType.text,
+          onSaved: (String val) async {
+            if (closeOnSubmit) {
+              await Navigator.maybePop(context);
+            }
 
-              if (clearOnSubmit) {
-                controller.clear();
-              }
+            if (clearOnSubmit) {
+              controller.clear();
+            }
 
-              onSubmitted(val);
-            },
-            autofocus: true,
-            controller: controller,
-          )),
-      actions: !showClearButton
-          ? null
-          : <Widget>[
-              // Show an icon if clear is not active, so there's no ripple on tap
-              new IconButton(
-                  icon: new Icon(Icons.clear,
-                      color: _clearActive ? buttonColor : buttonDisabledColor),
-                  disabledColor: buttonDisabledColor,
-                  onPressed: !_clearActive
-                      ? null
-                      : () {
-                          controller.clear();
-                        })
-            ],
+            onSubmitted(val);
+          },
+          autofocus: true,
+          controller: controller,
+          decoration: new InputDecoration(
+              hintText: hintText,
+              hintStyle: new TextStyle(color: textColor, fontSize: 16.0),
+              border: null),
+        ),
+      ),
+      actions: <Widget>[
+        _clearActive
+            ? new Text("")
+            : new IconButton(
+            icon: new Icon(Icons.photo_camera, color: buttonColor),
+            disabledColor: buttonDisabledColor,
+            onPressed: () => _scan()),
+        !showClearButton
+            ? new Text("")
+            : new IconButton(
+            icon: new Icon(Icons.clear,
+                color: _clearActive ? buttonColor : buttonDisabledColor),
+            disabledColor: buttonDisabledColor,
+            onPressed: !_clearActive
+                ? null
+                : () {
+              controller.clear();
+            })
+      ],
     );
   }
 
@@ -205,5 +216,17 @@ class SearchBar {
   /// Returns an AppBar based on the value of [_isSearching]
   AppBar build(BuildContext context) {
     return _isSearching ? buildSearchBar(context) : buildAppBar(context);
+  }
+
+  Future _scan() async {
+    try {
+      String barcode = await BarcodeScanner.scan();
+      setState(() {
+        controller.text = barcode;
+        onType(barcode);
+      });
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {} else {}
+    } on FormatException {} catch (e) {}
   }
 }

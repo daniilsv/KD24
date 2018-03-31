@@ -25,13 +25,13 @@ class Utils {
 
   static sendProducts(BuildContext context) async {
     DataBase db = await DataBase.getInstance();
-    var data = await db.getRows("products", where: "`price_new` != 'null'");
+    var data = await db.getRows("products", where: "`price_new` IS NOT NULL");
     toSend = [];
     for (Map product in data) {
       toSend.add(new Product.fromJson(product));
     }
 
-    showDialog<Null>(
+    return showDialog<String>(
       context: context,
       barrierDismissible: true,
       child: new AlertDialog(
@@ -61,7 +61,8 @@ class Utils {
                   child: new Text('Выгрузить',
                       style: new TextStyle(color: Colors.green)),
                   onPressed: () {
-                    _sendPrices(context);
+                    String res = _sendPrices();
+                    Navigator.of(context).pop(res);
                   },
                 )
               : new Text(""),
@@ -70,11 +71,7 @@ class Utils {
     );
   }
 
-  static _sendPrices(BuildContext context) async {
-    Navigator.of(context).pop();
-    if (toSend.length == 0) {
-      return;
-    }
+  static _sendPrices() async {
     List<Map> data = [];
     toSend.forEach((Product product) {
       data.add({
@@ -94,9 +91,9 @@ class Utils {
         await db.update("products", "`id`=${product.id}",
             {"price": product.priceNew, "price_new": null});
       }
-      print("${toSend.length} обновлений цен успешно выгружены");
+      return "${toSend.length} обновлений цен успешно выгружены";
     } else {
-      print("Что-то пошло не так...");
+      return "Что-то пошло не так...";
     }
   }
 
@@ -106,5 +103,9 @@ class Utils {
     db.delete("config", "`key`='token_type'");
     db.delete("config", "`key`='token_expires'");
     Routes.navigateTo(context, "/login");
+  }
+
+  static showInSnackBar(GlobalKey<ScaffoldState> key, String value) {
+    key.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 }

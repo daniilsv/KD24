@@ -13,7 +13,7 @@ class DataBase {
   Database db;
 
   Future open(String path) async {
-    db = await openDatabase(path, version: 2,
+    db = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) {
           db.execute('''
 create table config ( 
@@ -26,39 +26,42 @@ create table shops (
   `name` text not null)
 ''');
           db.execute('''
-create table products ( 
-  `id` integer primary key autoincrement, 
-  `original_id` integer,
-  `shop_id` integer,
-  `category` text not null,
-  `name` text not null,  
-  `brand` text not null,
-  `barcode` text not null,
-  `volume` text,
-  `volumeValue` text,
-  `image` text,
-  `price` real,
-  `price_new` real,
-  `price_new_date` text,
-  `is_sale` integer
-  )
-  CREATE INDEX index_id_shopid ON products (original_id, shop_id);
+  CREATE TABLE products (
+   `id` integer PRIMARY KEY AUTOINCREMENT,
+   `original_id` integer NOT NULL,
+   `shop_id` integer NOT NULL,
+   `category` text NOT NULL,
+   `name` text NOT NULL,
+   `brand` text,
+   `barcode` text,
+   `volume` text,
+   `volume_value` text,
+   `image` text,
+   `price` real DEFAULT NULL,
+   `price_new` real DEFAULT NULL,
+   `price_new_date` text DEFAULT NULL,
+   `is_sale` integer DEFAULT 0,
+   CONSTRAINT index_id_shopid UNIQUE (`original_id`, `shop_id`)
+);
 ''');
         }, onUpgrade: (Database db, int versionOld, int versionNew) {});
   }
 
   Future insertList(String table, List<Map> datas) async {
-    List keys = datas.first.keys.toList();
+    List keys = datas.first.keys.map((var l) {
+      return "`$l`";
+    }).toList();
     List vals = keys.map((var l) {
       return "?";
     }).toList();
-    String sql = "INSERT OR REPLACE INTO $table ( ${keys.join(
+    String sql = "INSERT OR REPLACE INTO `$table` ( ${keys.join(
         ",")} ) VALUES ( ${vals.join(",")} );";
-    print(sql);
     return db.transaction((txn) async {
+      var batch = db.batch();
       for (Map data in datas) {
-        await txn.execute(sql, data.values.toList());
+        batch.execute(sql, data.values.toList());
       }
+      await txn.applyBatch(batch);
     });
   }
 

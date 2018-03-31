@@ -3,7 +3,10 @@ import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/utils.dart';
 
 class DrawerMain extends StatefulWidget {
-  static const String routeName = '/material/drawer';
+  GlobalKey<ScaffoldState> scaffoldKey;
+
+  DrawerMain({Key key, GlobalKey<ScaffoldState> this.scaffoldKey})
+      : super(key: key);
 
   @override
   _DrawerMainState createState() => new _DrawerMainState();
@@ -64,7 +67,13 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                             new ListTile(
                               leading: const Icon(Icons.send),
                               title: new Text('Отправить изменения'),
-                              onTap: () => Utils.sendProducts(context),
+                              onTap: () =>
+                                  Utils
+                                      .sendProducts(context)
+                                      .then((String res) {
+                                    Utils.showInSnackBar(
+                                        widget.scaffoldKey, res);
+                                  }),
                             ),
                             new ListTile(
                               leading: const Icon(Icons.settings),
