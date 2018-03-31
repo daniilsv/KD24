@@ -43,8 +43,8 @@ class Utils {
             children: toSend.length != 0
                 ? <Widget>[
               new Text("Вы точно хотите выгрузить обновление цен?"),
-              new Text(
-                  "Будет выгружена информация о ценах ${toSend.length} товаров")
+              new Text("Будет выгружена информация о ценах ${toSend
+                  .length} товаров")
             ]
                 : <Widget>[
               new Text("Вы еще не уточнили ни одной цены."),

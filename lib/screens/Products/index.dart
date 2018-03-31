@@ -93,6 +93,9 @@ class ScreenProductsState extends State<ScreenProducts> {
                               ? const Icon(Icons.star_border)
                               : const Text(""),
                         ],
+                      ),
+                      new Padding(
+                        padding: new EdgeInsets.only(top: 5.0),
                       )
                     ]),
                     onPressed: () =>
@@ -116,7 +119,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}'" +
               (searchPhrase != null
-                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '$searchPhrase%'"
+                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
                   : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
@@ -129,7 +132,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` IS NULL" +
               (searchPhrase != null
-                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '$searchPhrase%'"
+                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
                   : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
@@ -142,7 +145,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` IS NOT NULL" +
               (searchPhrase != null
-                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '$searchPhrase%'"
+                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
                   : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
@@ -217,13 +220,13 @@ class ScreenProductsState extends State<ScreenProducts> {
   void initState() {
     super.initState();
     searchBar = new SearchBar(
-      inBar: true,
-      setState: setState,
-      onType: onSearchType,
-      onSubmitted: onSearchType,
-      onClear: onSearchClear,
-      buildDefaultAppBar: buildAppBar,
-    );
+        inBar: true,
+        setState: setState,
+        onType: onSearchType,
+        onSubmitted: onSearchType,
+        onClear: onSearchClear,
+        buildDefaultAppBar: buildAppBar,
+        needBarCodeCamera: false);
   }
 
   void onSearchType(String value) {
@@ -269,10 +272,16 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   openProduct(String path, int i) async {
-    var ret = await Routes.navigateTo(context, path);
+    var ret = await Routes.navigateTo(
+        context, path, transition: TransitionType.fadeIn);
     if (ret is Product) {
-      _items[i] = ret;
-      _productsLoaderState.currentState.reloadState();
+      if (!Config.moveDownDone) {
+        _items[i] = ret;
+        _productsLoaderState.currentState.reloadState();
+      } else {
+        Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+            replace: true, transition: TransitionType.fadeIn);
+      }
     }
   }
 

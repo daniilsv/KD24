@@ -73,7 +73,7 @@ class ScreenProductState extends State<ScreenProduct> {
   }
 
   Future _getImage() async {
-    await new Future.delayed(new Duration(seconds: 1));
+    await new Future.delayed(new Duration(milliseconds: 500));
     try {
       Widget image = new Image(
         image: new AdvancedNetworkImage(
@@ -203,9 +203,7 @@ class ScreenProductState extends State<ScreenProduct> {
                             new InputField(
                               hintText: "Price",
                               obscureText: false,
-                              initialText: product.priceNew == 0.0
-                                  ? ""
-                                  : product.priceNew.toString(),
+                              initialText: "",
                               textInputType: TextInputType.number,
                               textStyle: textStyle,
                               validateFunction: Validations.validatePrice,
@@ -243,7 +241,7 @@ class ScreenProductState extends State<ScreenProduct> {
                             ),
                             product.priceNew != null
                                 ? product.datePriceNew == null
-                                ? new Text("Выгружено",
+                                ? new Text("Выгружено: ${product.priceNew}",
                                 style:
                                 new TextStyle(color: Colors.green))
                                 : new Text("Не выгружено",

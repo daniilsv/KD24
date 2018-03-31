@@ -70,7 +70,7 @@ class ScreenLoginState extends State<ScreenLogin> {
         });
         User.localUser = _userData;
 
-        Routes.navigateTo(context, "/shops");
+        Routes.navigateTo(context, "/shops", replace: true);
       });
     }
   }

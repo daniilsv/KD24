@@ -54,6 +54,8 @@ class SearchBar {
   /// The last built default AppBar used for colors and such.
   AppBar _defaultAppBar;
 
+  bool needBarCodeCamera = false;
+
   SearchBar({@required this.setState,
     @required this.buildDefaultAppBar,
     this.onSubmitted,
@@ -63,6 +65,7 @@ class SearchBar {
     this.hintText = 'Search',
     this.inBar = true,
     this.colorBackButton = true,
+    this.needBarCodeCamera = false,
     this.closeOnSubmit = true,
     this.clearOnSubmit = true,
     this.showClearButton = true}) {
@@ -181,7 +184,7 @@ class SearchBar {
         ),
       ),
       actions: <Widget>[
-        _clearActive
+        _clearActive || !needBarCodeCamera
             ? new Text("")
             : new IconButton(
             icon: new Icon(Icons.photo_camera, color: buttonColor),
