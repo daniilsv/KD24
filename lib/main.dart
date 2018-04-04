@@ -5,6 +5,5 @@ import 'package:kd24_shop_spy/theme/style.dart';
 
 void main() {
   Routes.initRoutes();
-  runApp(new MaterialApp(
-      title: "KD 24", home: new ScreenSplash(), theme: appTheme));
+  runApp(new MaterialApp(title: "KD 24", home: new ScreenSplash(), theme: appTheme));
 }

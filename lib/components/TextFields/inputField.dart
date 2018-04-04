@@ -35,9 +35,8 @@ class InputField extends StatelessWidget {
     return (new Container(
         margin: new EdgeInsets.only(bottom: bottomMargin),
         child: new DecoratedBox(
-          decoration: new BoxDecoration(
-              borderRadius: new BorderRadius.all(new Radius.circular(30.0)),
-              color: textFieldColor),
+          decoration:
+          new BoxDecoration(borderRadius: new BorderRadius.all(new Radius.circular(30.0)), color: textFieldColor),
           child: new TextFormField(
             style: textStyle,
             initialValue: initialText,

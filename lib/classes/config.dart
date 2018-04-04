@@ -9,8 +9,7 @@ class Config {
 
   static Future loadFromDB() async {
     DataBase db = await DataBase.getInstance();
-    moveDownDone =
-        (await db.getField("config", "key='move_down_done'", "value")) == "1";
+    moveDownDone = (await db.getField("config", "key='move_down_done'", "value")) == "1";
   }
 
   static Future saveToDB() async {

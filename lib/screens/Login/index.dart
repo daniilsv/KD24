@@ -24,8 +24,7 @@ class ScreenLoginState extends State<ScreenLogin> {
   bool autovalidate = false;
 
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(value)));
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
   void _handleSubmitted() {
@@ -37,12 +36,7 @@ class ScreenLoginState extends State<ScreenLogin> {
       form.save();
       HttpQuery
           .executeJsonQuery("token",
-          params: {
-            'username': user.username,
-            'password': user.password,
-            'grant_type': "password"
-          },
-          method: "post")
+          params: {'username': user.username, 'password': user.password, 'grant_type': "password"}, method: "post")
           .then((var data) {
         if (data.containsKey("error")) {
           showInSnackBar(data["error"]);
@@ -64,8 +58,7 @@ class ScreenLoginState extends State<ScreenLogin> {
           });
           db.updateOrInsert("config", {
             "key": "token_expires",
-            "value": _userData.tokenExpires +
-                new DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            "value": _userData.tokenExpires + new DateTime.now().millisecondsSinceEpoch ~/ 1000,
           });
         });
         User.localUser = _userData;

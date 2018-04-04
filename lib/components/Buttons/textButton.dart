@@ -15,11 +15,7 @@ class TextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return (new FlatButton(
-      child: new Text(
-          buttonName,
-          textAlign: TextAlign.center,
-          style: buttonTextStyle
-      ),
+      child: new Text(buttonName, textAlign: TextAlign.center, style: buttonTextStyle),
       onPressed: onPressed,
     ));
   }

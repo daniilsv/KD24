@@ -33,8 +33,7 @@ class Product {
     this.isSale = false,
     this.datePriceNew});
 
-  String get volumeText =>
-      volume == "Вес" ? "кг" : volume == "Объем" ? "л" : "шт";
+  String get volumeText => volume == "Вес" ? "кг" : volume == "Объем" ? "л" : "шт";
 
   factory Product.fromJson(Map<String, dynamic> json) =>
       new Product(

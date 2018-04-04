@@ -19,8 +19,7 @@ class ScreenShops extends StatefulWidget {
 
 class ScreenShopsState extends State<ScreenShops> {
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(value)));
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -53,12 +52,10 @@ class ScreenShopsState extends State<ScreenShops> {
                   child: new ListTile(
                     title: new Text(
                       shop.name,
-                      style: new TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.bold),
+                      style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  onPressed: () =>
-                      Routes.navigateTo(context, "/shop/${shop.id}")),
+                  onPressed: () => Routes.navigateTo(context, "/shop/${shop.id}")),
             ),
           )
         ]);
@@ -70,8 +67,7 @@ class ScreenShopsState extends State<ScreenShops> {
     var db = await DataBase.getInstance();
     var _items = [];
     List rows = await db.getRows("shops",
-        order: "`name` ASC",
-        where: searchPhrase != null ? "`name` LIKE '$searchPhrase%'" : null);
+        order: "`name` ASC", where: searchPhrase != null ? "`name` LIKE '$searchPhrase%'" : null);
     if (rows.length != 0) {
       rows.forEach((var shop) {
         _items.add(new Shop.fromJson(shop));
@@ -97,10 +93,8 @@ class ScreenShopsState extends State<ScreenShops> {
     return true;
   }
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<AsyncLoaderState> _shopsLoaderState =
-      new GlobalKey<AsyncLoaderState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<AsyncLoaderState> _shopsLoaderState = new GlobalKey<AsyncLoaderState>();
 
   SearchBar searchBar;
 
@@ -158,8 +152,7 @@ class ScreenShopsState extends State<ScreenShops> {
           key: _shopsLoaderState,
           initState: () async => await getShops(),
           renderLoad: () => new Center(child: new CircularProgressIndicator()),
-          renderError: ([error]) =>
-              new Text('Странно.. Магазины не загружаются.'),
+          renderError: ([error]) => new Text('Странно.. Магазины не загружаются.'),
           renderSuccess: ({data}) => data,
         ),
       ),
@@ -170,8 +163,7 @@ class ScreenShopsState extends State<ScreenShops> {
     var ret = await Utils.sendProducts(context);
     if (ret != null && ret is String) {
       Navigator.pop(context);
-      _scaffoldKey.currentState
-          .showSnackBar(new SnackBar(content: new Text(ret)));
+      _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(ret)));
     }
   }
 }

@@ -19,8 +19,7 @@ class ScreenCategories extends StatefulWidget {
 
 class ScreenCategoriesState extends State<ScreenCategories> {
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(value)));
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
   Shop shop = new Shop();
@@ -48,8 +47,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
                   child: new ListTile(
                     title: new Text(
                       _items[index]["category"],
-                      style: new TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.bold),
+                      style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                     ),
                   ),
                   onPressed: () =>
@@ -68,9 +66,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
     var _categories = [];
     var db = await DataBase.getInstance();
     List<Map> rows = await db.getRows("products",
-        where: "`shop_id` = ${widget.shopId}",
-        order: "`category` ASC",
-        group: "`category`");
+        where: "`shop_id` = ${widget.shopId}", order: "`category` ASC", group: "`category`");
     if (rows.length != 0) {
       rows.forEach((var row) {
         _categories.add(row);
@@ -80,8 +76,8 @@ class ScreenCategoriesState extends State<ScreenCategories> {
   }
 
   Future<bool> _handleRefresh() async {
-    var data = await HttpQuery.executeJsonQuery("Products/GetTodayCheckProduct",
-        params: {"retailerId": widget.shopId.toString()});
+    var data = await HttpQuery
+        .executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
     if (data is Map && data.containsKey("error")) {
       showInSnackBar(data["error"]);
       return false;
@@ -107,10 +103,8 @@ class ScreenCategoriesState extends State<ScreenCategories> {
     return true;
   }
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<AsyncLoaderState> _productsLoaderState =
-      new GlobalKey<AsyncLoaderState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<AsyncLoaderState> _productsLoaderState = new GlobalKey<AsyncLoaderState>();
 
   Future _getAppBarTitle() async {
     DataBase db = await DataBase.getInstance();
@@ -140,8 +134,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
           key: _productsLoaderState,
           initState: () async => await getCategories(),
           renderLoad: () => new Center(child: new CircularProgressIndicator()),
-          renderError: ([error]) =>
-          new Text('Странно.. Товары не загружаются.'),
+          renderError: ([error]) => new Text('Странно.. Товары не загружаются.'),
           renderSuccess: ({data}) => data,
         ),
       ),

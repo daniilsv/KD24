@@ -14,38 +14,27 @@ class Routes {
 
   static void initRoutes() {
     _router.define("/login",
-        handler: new Handler(
-            handlerFunc: (BuildContext context, Map<String, dynamic> params) =>
-            new ScreenLogin()));
+        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenLogin()));
 
     _router.define("/settings",
-        handler: new Handler(
-            handlerFunc: (BuildContext context, Map<String, dynamic> params) =>
-            new ScreenSettings()));
+        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenSettings()));
 
     _router.define("/shops",
-        handler: new Handler(
-            handlerFunc: (BuildContext context, Map<String, dynamic> params) =>
-            new ScreenShops()));
+        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenShops()));
 
-    _router.define("/shop/:id", handler: new Handler(
-        handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenCategories(shopId: int.parse(params["id"][0]));
+    _router.define("/shop/:id", handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+      return new ScreenCategories(shopId: int.parse(params["id"][0]));
+    }));
+
+    _router.define("/shop/:shop_id/:category",
+        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+          return new ScreenProducts(shopId: int.parse(params["shop_id"][0]), category: params["category"][0]);
         }));
 
-    _router.define("/shop/:shop_id/:category", handler: new Handler(
-        handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenProducts(
-              shopId: int.parse(params["shop_id"][0]),
-              category: params["category"][0]);
-        }));
-
-    _router.define("/shop/:shop_id/:category/:id", handler: new Handler(
-        handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    _router.define("/shop/:shop_id/:category/:id",
+        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
           return new ScreenProduct(
-              shopId: int.parse(params["shop_id"][0]),
-              category: params["category"][0],
-              id: int.parse(params["id"][0]));
+              shopId: int.parse(params["shop_id"][0]), category: params["category"][0], id: int.parse(params["id"][0]));
         }));
 
 //    _router.define("/shop/:shop_id/:category/add/:barcode", handler: new Handler(
@@ -55,16 +44,13 @@ class Routes {
   }
 
   static Future<dynamic> navigateTo(BuildContext context, String route,
-      {TransitionType transition = TransitionType.inFromRight,
-        bool replace = false}) {
-    return _router.navigateTo(context, route,
-        replace: replace, transition: transition);
+      {TransitionType transition = TransitionType.inFromRight, bool replace = false}) {
+    return _router.navigateTo(context, route, replace: replace, transition: transition);
   }
 
   static void backTo(BuildContext context, String path) {
     Navigator.of(context).popUntil((Route<dynamic> route) {
-      return route == null ||
-          route is ModalRoute && route.settings.name == path;
+      return route == null || route is ModalRoute && route.settings.name == path;
     });
   }
 }

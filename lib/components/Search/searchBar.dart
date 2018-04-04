@@ -107,9 +107,7 @@ class SearchBar {
   ///
   /// This adds a new route that listens for onRemove (and stops the search when that happens), and then calls [setState] to rebuild and start the search.
   void beginSearch(context) {
-    ModalRoute
-        .of(context)
-        .addLocalHistoryEntry(new LocalHistoryEntry(onRemove: () {
+    ModalRoute.of(context).addLocalHistoryEntry(new LocalHistoryEntry(onRemove: () {
       setState(() {
         controller.text = "";
         onType("");
@@ -146,12 +144,9 @@ class SearchBar {
     Color buttonColor = inBar
         ? null
         : (colorBackButton
-        ? _defaultAppBar.backgroundColor ??
-        theme.primaryColor ??
-        Colors.grey.shade400
+        ? _defaultAppBar.backgroundColor ?? theme.primaryColor ?? Colors.grey.shade400
         : Colors.grey.shade400);
-    Color buttonDisabledColor =
-    inBar ? new Color.fromRGBO(255, 255, 255, 0.25) : Colors.grey.shade300;
+    Color buttonDisabledColor = inBar ? new Color.fromRGBO(255, 255, 255, 0.25) : Colors.grey.shade300;
 
     Color textColor = inBar ? Colors.white70 : Colors.black54;
 
@@ -178,9 +173,7 @@ class SearchBar {
           autofocus: true,
           controller: controller,
           decoration: new InputDecoration(
-              hintText: hintText,
-              hintStyle: new TextStyle(color: textColor, fontSize: 16.0),
-              border: null),
+              hintText: hintText, hintStyle: new TextStyle(color: textColor, fontSize: 16.0), border: null),
         ),
       ),
       actions: <Widget>[
@@ -193,8 +186,7 @@ class SearchBar {
         !showClearButton
             ? new Text("")
             : new IconButton(
-            icon: new Icon(Icons.clear,
-                color: _clearActive ? buttonColor : buttonDisabledColor),
+            icon: new Icon(Icons.clear, color: _clearActive ? buttonColor : buttonDisabledColor),
             disabledColor: buttonDisabledColor,
             onPressed: !_clearActive
                 ? null

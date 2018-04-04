@@ -19,8 +19,7 @@ class ScreenSettingsState extends State<ScreenSettings> {
   bool autovalidate = false;
 
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(value)));
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
   void _handleSubmitted() {

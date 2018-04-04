@@ -42,8 +42,6 @@ class User {
     return new User(
         token: await db.getField("config", "key='token'", "value"),
         tokenType: await db.getField("config", "key='token_type'", "value"),
-        tokenExpires: int.parse(
-            await db.getField("config", "key='token_expires'", "value") ??
-                "0"));
+        tokenExpires: int.parse(await db.getField("config", "key='token_expires'", "value") ?? "0"));
   }
 }

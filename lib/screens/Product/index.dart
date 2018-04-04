@@ -49,8 +49,8 @@ class ScreenProductState extends State<ScreenProduct> {
       form.save();
       product.datePriceNew = Utils.getDateTimeNow(); //"dd.MM.yyyyTHH:mm:ss"
       DataBase db = await DataBase.getInstance();
-      await db.update(
-          "products", "`id` = ${product.id}", {"is_sale": product.isSale ? 1 : 0, "price_new": product.priceNew, "price_new_date": product.datePriceNew});
+      await db.update("products", "`id` = ${product.id}",
+          {"is_sale": product.isSale ? 1 : 0, "price_new": product.priceNew, "price_new_date": product.datePriceNew});
       Navigator.pop(context, product);
     }
   }
@@ -69,7 +69,9 @@ class ScreenProductState extends State<ScreenProduct> {
     await new Future.delayed(new Duration(milliseconds: 500));
     try {
       Widget image = new Image(
-        image: new AdvancedNetworkImage(HttpQuery.hrefTo("prodbasecontent/Images", baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
+        image: new AdvancedNetworkImage(
+            HttpQuery.hrefTo("prodbasecontent/Images",
+                baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
             useDiskCache: true),
         fit: BoxFit.contain,
         width: MediaQuery
@@ -147,7 +149,8 @@ class ScreenProductState extends State<ScreenProduct> {
                             new Row(
                               children: <Widget>[
                                 const Text("Цена за"),
-                                new Padding(padding: new EdgeInsets.only(left: 20.0), child: new Text(product.volumeValue)),
+                                new Padding(
+                                    padding: new EdgeInsets.only(left: 20.0), child: new Text(product.volumeValue)),
                                 new Padding(
                                   padding: new EdgeInsets.only(left: 20.0),
                                   child: new DropdownButton(
@@ -224,7 +227,8 @@ class ScreenProductState extends State<ScreenProduct> {
                             ),
                             product.priceNew != null
                                 ? product.datePriceNew == null
-                                ? new Text("Выгружено: ${product.priceNew}", style: new TextStyle(color: Colors.green))
+                                ? new Text("Выгружено: ${product.priceNew}",
+                                style: new TextStyle(color: Colors.green))
                                 : new Text("Не выгружено", style: new TextStyle(color: Colors.red))
                                 : const Text("")
                           ],

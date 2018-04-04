@@ -9,8 +9,7 @@ class DrawerMain extends StatefulWidget {
 
   ListTile sendWidget;
 
-  DrawerMain({Key key, this.scaffoldKey, this.settingsWidget, this.sendWidget})
-      : super(key: key);
+  DrawerMain({Key key, this.scaffoldKey, this.settingsWidget, this.sendWidget}) : super(key: key);
 
   @override
   _DrawerMainState createState() => new _DrawerMainState();
@@ -68,18 +67,14 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                                 Routes.backTo(context, "/shops");
                               },
                             ),
-                            widget.sendWidget != null
-                                ? widget.sendWidget
-                                : new Row(),
+                            widget.sendWidget != null ? widget.sendWidget : new Row(),
                             widget.settingsWidget != null
                                 ? widget.settingsWidget
                                 : new ListTile(
                               leading: const Icon(Icons.settings),
                               title: new Text('Настройки'),
                               onTap: () =>
-                                  Routes
-                                      .navigateTo(context, "/settings")
-                                      .then((var a) {
+                                  Routes.navigateTo(context, "/settings").then((var a) {
                                     Navigator.pop(context);
                                   }),
                             ),

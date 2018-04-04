@@ -13,19 +13,18 @@ class DataBase {
   Database db;
 
   Future open(String path) async {
-    db = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) {
-          db.execute('''
+    db = await openDatabase(path, version: 1, onCreate: (Database db, int version) {
+      db.execute('''
 create table config ( 
   `key` text primary key not null, 
   `value` text not null)
 ''');
-          db.execute('''
+      db.execute('''
 create table shops ( 
   `id` integer primary key, 
   `name` text not null)
 ''');
-          db.execute('''
+      db.execute('''
   CREATE TABLE products (
    `id` integer PRIMARY KEY AUTOINCREMENT,
    `original_id` integer NOT NULL,
@@ -44,7 +43,7 @@ create table shops (
    CONSTRAINT index_id_shopid UNIQUE (`original_id`, `shop_id`)
 );
 ''');
-        }, onUpgrade: (Database db, int versionOld, int versionNew) {});
+    }, onUpgrade: (Database db, int versionOld, int versionNew) {});
   }
 
   Future insertList(String table, List<Map> datas) async {
@@ -85,10 +84,8 @@ create table shops (
     return db.rawInsert(sql, data.values.toList());
   }
 
-  Future<List<Map>> getRows(String table,
-      {String where, String order, String group}) async {
-    List<Map> ret =
-    await db.query(table, where: where, orderBy: order, groupBy: group);
+  Future<List<Map>> getRows(String table, {String where, String order, String group}) async {
+    List<Map> ret = await db.query(table, where: where, orderBy: order, groupBy: group);
     if (ret.length > 0) {
       return ret;
     }

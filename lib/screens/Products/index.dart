@@ -60,7 +60,8 @@ class ScreenProductsState extends State<ScreenProducts> {
                         subtitle: new Text(product.barcode, style: new TextStyle(fontSize: 16.0)),
                         leading: new Image(
                           image: new AdvancedNetworkImage(
-                              HttpQuery.hrefTo("prodbasecontent/Images", baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
+                              HttpQuery.hrefTo("prodbasecontent/Images",
+                                  baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
                               useDiskCache: true),
                           fit: BoxFit.contain,
                           height: 80.0,
@@ -70,13 +71,17 @@ class ScreenProductsState extends State<ScreenProducts> {
                       ),
                       new Row(
                         children: <Widget>[
-                          product.price != null ? new Text(product.price.toString() ?? "", style: new TextStyle(color: Colors.grey)) : const Text(""),
+                          product.price != null
+                              ? new Text(product.price.toString() ?? "", style: new TextStyle(color: Colors.grey))
+                              : const Text(""),
                           product.price != null ? new Icon(Icons.arrow_forward, size: 12.0) : const Text(""),
                           product.priceNew == null
                               ? const Icon(Icons.close, color: Colors.red)
                               : new Text(product.priceNew.toString() ?? "", style: new TextStyle(color: Colors.green)),
-                          new Padding(padding: new EdgeInsets.only(left: 10.0), child: new Text("за ${product.volumeValue} ${product
-                                      .volumeText}")),
+                          new Padding(
+                              padding: new EdgeInsets.only(left: 10.0),
+                              child: new Text("за ${product.volumeValue} ${product
+                                  .volumeText}")),
                           product.priceNew != null && product.isSale ? const Icon(Icons.star_border) : const Text(""),
                         ],
                       ),
@@ -138,7 +143,8 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   Future<bool> _handleRefresh() async {
-    var data = await HttpQuery.executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
+    var data = await HttpQuery
+        .executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
     if (data is Map && data.containsKey("error")) {
       Utils.showInSnackBar(_scaffoldKey, data["error"]);
       return false;
@@ -253,7 +259,8 @@ class ScreenProductsState extends State<ScreenProducts> {
         _items[i] = ret;
         _productsLoaderState.currentState.reloadState();
       } else {
-        Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}", replace: true, transition: TransitionType.fadeIn);
+        Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+            replace: true, transition: TransitionType.fadeIn);
       }
     }
   }
@@ -264,13 +271,15 @@ class ScreenProductsState extends State<ScreenProducts> {
       Navigator.pop(context);
       _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(ret)));
       await new Future.delayed(new Duration(seconds: 1));
-      Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}", replace: true, transition: TransitionType.fadeIn);
+      Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+          replace: true, transition: TransitionType.fadeIn);
     }
   }
 
   openSettings() async {
     await Routes.navigateTo(context, "/settings");
     Navigator.pop(context);
-    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}", replace: true, transition: TransitionType.fadeIn);
+    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+        replace: true, transition: TransitionType.fadeIn);
   }
 }

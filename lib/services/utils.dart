@@ -26,8 +26,7 @@ class Utils {
 
   static Future<String> sendProducts(BuildContext context) async {
     DataBase db = await DataBase.getInstance();
-    var rows =
-    await db.getRows("products", where: "`price_new_date` IS NOT NULL");
+    var rows = await db.getRows("products", where: "`price_new_date` IS NOT NULL");
     toSend = [];
     for (Map product in rows) {
       toSend.add(new Product.fromJson(product));
@@ -60,8 +59,7 @@ class Utils {
           ),
           toSend.length != 0
               ? new FlatButton(
-            child: new Text('Выгрузить',
-                style: new TextStyle(color: Colors.green)),
+            child: new Text('Выгрузить', style: new TextStyle(color: Colors.green)),
             onPressed: () async {
               String res = await _sendPrices();
               Navigator.of(context).pop(res);
@@ -84,14 +82,13 @@ class Utils {
         "date": product.datePriceNew
       });
     });
-    var ret = await HttpQuery.executeJsonQuery("Prices/sendPriceArray",
-        method: "post", params: {"arrPrices": JSON.encode(data)});
+    var ret = await HttpQuery
+        .executeJsonQuery("Prices/sendPriceArray", method: "post", params: {"arrPrices": JSON.encode(data)});
 
     if ((ret as Map).containsKey("success")) {
       DataBase db = await DataBase.getInstance();
       for (Product product in toSend) {
-        await db.update("products", "`id`=${product.id}",
-            {"price": product.priceNew, "price_new_date": null});
+        await db.update("products", "`id`=${product.id}", {"price": product.priceNew, "price_new_date": null});
       }
       return "${toSend.length} обновлений цен успешно выгружены";
     } else {

@@ -10,19 +10,12 @@ class RoundedButton extends StatelessWidget {
   final double borderWidth;
   final Color buttonColor;
 
-  final TextStyle textStyle = const TextStyle(
-      color: const Color(0XFFFFFFFF),
-      fontSize: 16.0,
-      fontWeight: FontWeight.bold);
+  final TextStyle textStyle =
+  const TextStyle(color: const Color(0XFFFFFFFF), fontSize: 16.0, fontWeight: FontWeight.bold);
 
   //passing props in react style
-  RoundedButton({this.buttonName,
-    this.onTap,
-    this.height,
-    this.bottomMargin,
-    this.borderWidth,
-    this.width,
-    this.buttonColor});
+  RoundedButton(
+      {this.buttonName, this.onTap, this.height, this.bottomMargin, this.borderWidth, this.width, this.buttonColor});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +30,7 @@ class RoundedButton extends StatelessWidget {
           decoration: new BoxDecoration(
               color: buttonColor,
               borderRadius: new BorderRadius.all(const Radius.circular(30.0)),
-              border: new Border.all(
-                  color: const Color.fromRGBO(221, 221, 221, 1.0),
-                  width: borderWidth)),
+              border: new Border.all(color: const Color.fromRGBO(221, 221, 221, 1.0), width: borderWidth)),
           child: new Text(buttonName, style: textStyle),
         ),
       ));
