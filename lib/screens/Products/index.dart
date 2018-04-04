@@ -119,7 +119,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}'" +
               (searchPhrase != null
-                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
+                  ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
                   : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
@@ -132,7 +132,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` IS NULL" +
               (searchPhrase != null
-                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
+                  ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
                   : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
@@ -145,7 +145,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` IS NOT NULL" +
               (searchPhrase != null
-                  ? " AND `name` LIKE '$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
+                  ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
                   : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
