@@ -16,8 +16,7 @@ import 'package:kd24_shop_spy/services/validations.dart';
 import 'package:kd24_shop_spy/theme/style.dart';
 
 class ScreenProduct extends StatefulWidget {
-  ScreenProduct({Key key, this.shopId, this.category, this.id})
-      : super(key: key);
+  ScreenProduct({Key key, this.shopId, this.category, this.id}) : super(key: key);
 
   final int shopId;
   final String category;
@@ -30,8 +29,7 @@ class ScreenProduct extends StatefulWidget {
 class ScreenProductState extends State<ScreenProduct> {
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final GlobalKey<AsyncLoaderState> _imageLoaderState =
-  new GlobalKey<AsyncLoaderState>();
+  final GlobalKey<AsyncLoaderState> _imageLoaderState = new GlobalKey<AsyncLoaderState>();
   Product product = new Product();
   ScrollController scrollController = new ScrollController();
   UserLoginData user = new UserLoginData();
@@ -39,8 +37,7 @@ class ScreenProductState extends State<ScreenProduct> {
   Shop shop;
 
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(value)));
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
   void _handleSubmitted() async {
@@ -52,11 +49,8 @@ class ScreenProductState extends State<ScreenProduct> {
       form.save();
       product.datePriceNew = Utils.getDateTimeNow(); //"dd.MM.yyyyTHH:mm:ss"
       DataBase db = await DataBase.getInstance();
-      await db.update("products", "`id` = ${product.id}", {
-        "is_sale": product.isSale ? 1 : 0,
-        "price_new": product.priceNew,
-        "price_new_date": product.datePriceNew
-      });
+      await db.update(
+          "products", "`id` = ${product.id}", {"is_sale": product.isSale ? 1 : 0, "price_new": product.priceNew, "price_new_date": product.datePriceNew});
       Navigator.pop(context, product);
     }
   }
@@ -67,8 +61,7 @@ class ScreenProductState extends State<ScreenProduct> {
     shop = new Shop.fromJson(_shop);
     return new ListTile(
       title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
-      subtitle:
-      new Text(widget.category, style: new TextStyle(color: Colors.white)),
+      subtitle: new Text(widget.category, style: new TextStyle(color: Colors.white)),
     );
   }
 
@@ -76,10 +69,7 @@ class ScreenProductState extends State<ScreenProduct> {
     await new Future.delayed(new Duration(milliseconds: 500));
     try {
       Widget image = new Image(
-        image: new AdvancedNetworkImage(
-            HttpQuery.hrefTo("prodbasecontent/Images",
-                baseUrl: "prodbasestorage.blob.core.windows.net",
-                file: product.image),
+        image: new AdvancedNetworkImage(HttpQuery.hrefTo("prodbasecontent/Images", baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
             useDiskCache: true),
         fit: BoxFit.contain,
         width: MediaQuery
@@ -144,26 +134,20 @@ class ScreenProductState extends State<ScreenProduct> {
                               child: new AsyncLoader(
                                 key: _imageLoaderState,
                                 initState: () async => await _getImage(),
-                                renderLoad: () =>
-                                new Center(
-                                    child: new CircularProgressIndicator()),
+                                renderLoad: () => new Center(child: new CircularProgressIndicator()),
                                 renderSuccess: ({data}) => data,
-                                renderError: ([e]) =>
-                                new Center(
-                                    child: new CircularProgressIndicator()),
+                                renderError: ([e]) => new Center(child: new CircularProgressIndicator()),
                               ),
                             ),
                             new ListTile(
                               title: new Text(product.name),
-                              subtitle: new Text(product.barcode),
+                              subtitle: new Text(product.barcode, style: new TextStyle(fontSize: 16.0)),
                             ),
                             new Divider(color: Colors.black),
                             new Row(
                               children: <Widget>[
                                 const Text("Цена за"),
-                                new Padding(
-                                    padding: new EdgeInsets.only(left: 20.0),
-                                    child: new Text(product.volumeValue)),
+                                new Padding(padding: new EdgeInsets.only(left: 20.0), child: new Text(product.volumeValue)),
                                 new Padding(
                                   padding: new EdgeInsets.only(left: 20.0),
                                   child: new DropdownButton(
@@ -193,10 +177,9 @@ class ScreenProductState extends State<ScreenProduct> {
                               children: <Widget>[
                                 const Text("Старая цена: "),
                                 new Padding(
-                                    padding:
-                                    new EdgeInsets.only(left: 20.0),
-                                    child: new Text(
-                                        product.price.toString()))
+                                  padding: new EdgeInsets.only(left: 20.0),
+                                  child: new Text(product.price.toString()),
+                                )
                               ],
                             )
                                 : const Text(""),
@@ -241,11 +224,8 @@ class ScreenProductState extends State<ScreenProduct> {
                             ),
                             product.priceNew != null
                                 ? product.datePriceNew == null
-                                ? new Text("Выгружено: ${product.priceNew}",
-                                style:
-                                new TextStyle(color: Colors.green))
-                                : new Text("Не выгружено",
-                                style: new TextStyle(color: Colors.red))
+                                ? new Text("Выгружено: ${product.priceNew}", style: new TextStyle(color: Colors.green))
+                                : new Text("Не выгружено", style: new TextStyle(color: Colors.red))
                                 : const Text("")
                           ],
                         ),

@@ -38,8 +38,7 @@ class ScreenProductsState extends State<ScreenProducts> {
   getProducts() async {
     if (_items.length == 0 || (wasUpdate && searchPhrase != null)) {
       _items = await _loadFromDatabase();
-      if (searchPhrase != null) if (searchPhrase == null &&
-          _items.length == 0) {
+      if (searchPhrase != null) if (searchPhrase == null && _items.length == 0) {
         bool status = await _handleRefresh();
         if (status) _items = await _loadFromDatabase();
       }
@@ -58,12 +57,10 @@ class ScreenProductsState extends State<ScreenProducts> {
                     child: new Column(children: <Widget>[
                       new ListTile(
                         title: new Text(product.name),
-                        subtitle: new Text(product.barcode),
+                        subtitle: new Text(product.barcode, style: new TextStyle(fontSize: 16.0)),
                         leading: new Image(
                           image: new AdvancedNetworkImage(
-                              HttpQuery.hrefTo("prodbasecontent/Images",
-                                  baseUrl: "prodbasestorage.blob.core.windows.net",
-                                  file: product.image),
+                              HttpQuery.hrefTo("prodbasecontent/Images", baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
                               useDiskCache: true),
                           fit: BoxFit.contain,
                           height: 80.0,
@@ -73,25 +70,14 @@ class ScreenProductsState extends State<ScreenProducts> {
                       ),
                       new Row(
                         children: <Widget>[
-                          product.price != null
-                              ? new Text(product.price.toString() ?? "",
-                              style: new TextStyle(color: Colors.grey))
-                              : const Text(""),
-                          product.price != null
-                              ? new Icon(Icons.arrow_forward, size: 12.0)
-                              : const Text(""),
+                          product.price != null ? new Text(product.price.toString() ?? "", style: new TextStyle(color: Colors.grey)) : const Text(""),
+                          product.price != null ? new Icon(Icons.arrow_forward, size: 12.0) : const Text(""),
                           product.priceNew == null
                               ? const Icon(Icons.close, color: Colors.red)
-                              : new Text(product.priceNew.toString() ?? "",
-                              style: new TextStyle(color: Colors.green)),
-                          new Padding(
-                              padding: new EdgeInsets.only(left: 10.0),
-                              child: new Text(
-                                  "за ${product.volumeValue} ${product
+                              : new Text(product.priceNew.toString() ?? "", style: new TextStyle(color: Colors.green)),
+                          new Padding(padding: new EdgeInsets.only(left: 10.0), child: new Text("за ${product.volumeValue} ${product
                                       .volumeText}")),
-                          product.priceNew != null && product.isSale
-                              ? const Icon(Icons.star_border)
-                              : const Text(""),
+                          product.priceNew != null && product.isSale ? const Icon(Icons.star_border) : const Text(""),
                         ],
                       ),
                       new Padding(
@@ -118,9 +104,7 @@ class ScreenProductsState extends State<ScreenProducts> {
       List<Map> rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}'" +
-              (searchPhrase != null
-                  ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
-                  : ""),
+              (searchPhrase != null ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'" : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
         for (var product in rows) {
@@ -131,9 +115,7 @@ class ScreenProductsState extends State<ScreenProducts> {
       List<Map> rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` IS NULL" +
-              (searchPhrase != null
-                  ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
-                  : ""),
+              (searchPhrase != null ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'" : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
         for (var product in rows) {
@@ -144,9 +126,7 @@ class ScreenProductsState extends State<ScreenProducts> {
       rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
               .category}' AND `price_new` IS NOT NULL" +
-              (searchPhrase != null
-                  ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'"
-                  : ""),
+              (searchPhrase != null ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'" : ""),
           order: "`name` ASC");
       if (rows.length != 0) {
         for (var product in rows) {
@@ -158,8 +138,7 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   Future<bool> _handleRefresh() async {
-    var data = await HttpQuery.executeJsonQuery("Products/GetTodayCheckProduct",
-        params: {"retailerId": widget.shopId.toString()});
+    var data = await HttpQuery.executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
     if (data is Map && data.containsKey("error")) {
       Utils.showInSnackBar(_scaffoldKey, data["error"]);
       return false;
@@ -186,10 +165,8 @@ class ScreenProductsState extends State<ScreenProducts> {
     return true;
   }
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<AsyncLoaderState> _productsLoaderState =
-      new GlobalKey<AsyncLoaderState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<AsyncLoaderState> _productsLoaderState = new GlobalKey<AsyncLoaderState>();
 
   SearchBar searchBar;
 
@@ -199,8 +176,7 @@ class ScreenProductsState extends State<ScreenProducts> {
     shop = new Shop.fromJson(_shop);
     return new ListTile(
       title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
-      subtitle:
-      new Text(widget.category, style: new TextStyle(color: Colors.white)),
+      subtitle: new Text(widget.category, style: new TextStyle(color: Colors.white)),
     );
   }
 
@@ -263,8 +239,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           key: _productsLoaderState,
           initState: () async => await getProducts(),
           renderLoad: () => new Center(child: new CircularProgressIndicator()),
-          renderError: ([error]) =>
-          new Text('Странно.. Товары не загружаются.'),
+          renderError: ([error]) => new Text('Странно.. Товары не загружаются.'),
           renderSuccess: ({data}) => data,
         ),
       ),
@@ -272,15 +247,13 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   openProduct(String path, int i) async {
-    var ret = await Routes.navigateTo(
-        context, path, transition: TransitionType.fadeIn);
+    var ret = await Routes.navigateTo(context, path, transition: TransitionType.fadeIn);
     if (ret is Product) {
       if (!Config.moveDownDone) {
         _items[i] = ret;
         _productsLoaderState.currentState.reloadState();
       } else {
-        Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
-            replace: true, transition: TransitionType.fadeIn);
+        Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}", replace: true, transition: TransitionType.fadeIn);
       }
     }
   }
@@ -289,18 +262,15 @@ class ScreenProductsState extends State<ScreenProducts> {
     var ret = await Utils.sendProducts(context);
     if (ret != null && ret is String) {
       Navigator.pop(context);
-      _scaffoldKey.currentState
-          .showSnackBar(new SnackBar(content: new Text(ret)));
+      _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(ret)));
       await new Future.delayed(new Duration(seconds: 1));
-      Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
-          replace: true, transition: TransitionType.fadeIn);
+      Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}", replace: true, transition: TransitionType.fadeIn);
     }
   }
 
   openSettings() async {
     await Routes.navigateTo(context, "/settings");
     Navigator.pop(context);
-    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
-        replace: true, transition: TransitionType.fadeIn);
+    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}", replace: true, transition: TransitionType.fadeIn);
   }
 }
