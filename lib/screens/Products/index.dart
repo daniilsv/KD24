@@ -238,6 +238,7 @@ class ScreenProductsState extends State<ScreenProducts> {
         ),
       ),
       appBar: searchBar.build(context),
+      floatingActionButton: _getFab(),
       body: new RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _handleRefresh(),
@@ -250,6 +251,15 @@ class ScreenProductsState extends State<ScreenProducts> {
         ),
       ),
     );
+  }
+
+  openProductAdd(String barcode) async {
+    var ret = await Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}/add/$barcode",
+        transition: TransitionType.fadeIn);
+    if (ret is Product) {
+      Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+          replace: true, transition: TransitionType.fadeIn);
+    }
   }
 
   openProduct(String path, int i) async {
@@ -281,5 +291,11 @@ class ScreenProductsState extends State<ScreenProducts> {
     Navigator.pop(context);
     Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
         replace: true, transition: TransitionType.fadeIn);
+  }
+
+  _getFab() {
+    if (searchPhrase != null && searchPhrase.length >= 8) {
+      return new FloatingActionButton(child: const Icon(Icons.add), onPressed: () => openProductAdd(searchPhrase));
+    }
   }
 }
