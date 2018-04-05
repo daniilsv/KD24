@@ -82,8 +82,7 @@ class Utils {
         "date": product.datePriceNew
       });
     });
-    var ret = await HttpQuery
-        .executeJsonQuery("Prices/sendPriceArray", method: "post", params: {"arrPrices": JSON.encode(data)});
+    var ret = await HttpQuery.sendData("Prices/sendPriceArray", method: "post", params: json.encode(data));
 
     if ((ret as Map).containsKey("success")) {
       DataBase db = await DataBase.getInstance();
