@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:kd24_shop_spy/classes/product.dart';
 import 'package:kd24_shop_spy/data/database.dart';
 import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
 
 class Utils {
   static String twoDigits(int n) {
@@ -22,77 +17,18 @@ class Utils {
     return "${sign}000$absN";
   }
 
-  static List<Product> toSend = [];
-
-  static Future<String> sendProducts(BuildContext context) async {
-    DataBase db = await DataBase.getInstance();
-    var rows = await db.getRows("products", where: "`price_new_date` IS NOT NULL");
-    toSend = [];
-    for (Map product in rows) {
-      toSend.add(new Product.fromJson(product));
-    }
-
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: true,
-      child: new AlertDialog(
-        title: new Text('Выгрузить цены'),
-        content: new SingleChildScrollView(
-          child: new ListBody(
-            children: toSend.length != 0
-                ? <Widget>[
-              new Text("Вы точно хотите выгрузить обновление цен?"),
-              new Text("Будет выгружена информация о ценах ${toSend
-                  .length} товаров")
-            ]
-                : <Widget>[
-              new Text("Вы еще не уточнили ни одной цены."),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          new FlatButton(
-            child: new Text('Отмена', style: new TextStyle(color: Colors.red)),
-            onPressed: () {
-              Navigator.of(context).pop(null);
-            },
-          ),
-          toSend.length != 0
-              ? new FlatButton(
-            child: new Text('Выгрузить', style: new TextStyle(color: Colors.green)),
-            onPressed: () async {
-              String res = await _sendPrices();
-              Navigator.of(context).pop(res);
-            },
-          )
-              : new Text(""),
-        ],
-      ),
-    );
+  static String getDateTimeNow() {
+    var now = new DateTime.now();
+    return "${twoDigits(now.day)}"
+        ".${twoDigits(now.month)}"
+        ".${fourDigits(now.year)}"
+        "T${twoDigits(now.hour)}"
+        ":${twoDigits(now.minute)}"
+        ":${twoDigits(now.second)}";
   }
 
-  static Future<String> _sendPrices() async {
-    List<Map> data = [];
-    toSend.forEach((Product product) {
-      data.add({
-        "shopId": product.shopId,
-        "productId": product.originalId,
-        "typeId": product.isSale ? 1 : 0,
-        "price": product.priceNew,
-        "date": product.datePriceNew
-      });
-    });
-    var ret = await HttpQuery.sendData("Prices/sendPriceArray", method: "post", params: json.encode(data));
-
-    if ((ret as Map).containsKey("success")) {
-      DataBase db = await DataBase.getInstance();
-      for (Product product in toSend) {
-        await db.update("products", "`id`=${product.id}", {"price": product.priceNew, "price_new_date": null});
-      }
-      return "${toSend.length} обновлений цен успешно выгружены";
-    } else {
-      return "Что-то пошло не так...";
-    }
+  static showInSnackBar(GlobalKey<ScaffoldState> key, String value) {
+    key.currentState.showSnackBar(new SnackBar(content: new Text(value)));
   }
 
   static logout(BuildContext context) async {
@@ -104,17 +40,106 @@ class Utils {
     Routes.navigateTo(context, "/login", replace: true);
   }
 
-  static showInSnackBar(GlobalKey<ScaffoldState> key, String value) {
-    key.currentState.showSnackBar(new SnackBar(content: new Text(value)));
+  static int compResult(String st1, String st2) {
+    String st0;
+    int i,
+        j,
+        k1,
+        k2,
+        l0,
+        l1,
+        l2,
+        lmin,
+        lminc,
+        lm,
+        lmm,
+        mltot = 0,
+        ml = 0,
+        mp = 0,
+        mc = 0,
+        mpp = 0,
+        mlp = 0;
+    st1 = preProcessString(st1);
+    st2 = preProcessString(st2);
+    lmin = 3;
+    l1 = st1.length;
+    l2 = st2.length;
+
+    if (l1 > l2) {
+      st0 = st1;
+      l0 = l1;
+      st1 = st2;
+      l1 = l2;
+      st2 = st0;
+      l2 = l0;
+    }
+
+    for (i = 0; i <= l1 - lmin; i++) {
+      lmm = 0;
+      lminc = lmin;
+      for (j = 0; j <= l2 - lminc; j++) {
+        k1 = i;
+        k2 = j;
+        lm = 0;
+        for (; (k1 < l1) && (k2 < l2); k1++, k2++) {
+          if (st1[k1] == st2[k2]) //.charAt(k1)
+            lm++;
+          else
+            break;
+        }
+        if (lm > lmm) lmm = lm;
+        if (lminc < lmm) lminc = lmm;
+      }
+      if (lmm < lmin) continue;
+      mc++;
+      mltot += lmm;
+      if (mp + ml > i) {
+        if (i + lmm > mp + ml) {
+          if (mp > mpp) {
+            mc--;
+            mltot -= ml;
+            mp = mpp;
+            ml = mlp;
+          }
+        } else {
+          mc--;
+          mltot -= lmm;
+          continue;
+        }
+        if (lmm > ml) {
+          mltot -= ml;
+          if (i - mp < lmin)
+            mc--;
+          else
+            mltot += i - mp;
+          mp = i;
+          mpp = i;
+          ml = lmm;
+          mlp = lmm;
+        } else {
+          if (i + lmm - mp - ml < lmin) {
+            mc--;
+            mltot -= lmm;
+          } else {
+            mltot -= mp + ml - i;
+            mp += ml;
+            ml = i + lmm - mp;
+          }
+        }
+      } else {
+        mp = i;
+        ml = lmm;
+        mpp = i;
+        mlp = lmm;
+      }
+    }
+    return ((mltot * 100 / l1) * 100 + 140 - 8 * mc - l2 * 32 / l1).toInt();
   }
 
-  static String getDateTimeNow() {
-    var now = new DateTime.now();
-    return "${twoDigits(now.day)}"
-        ".${twoDigits(now.month)}"
-        ".${fourDigits(now.year)}"
-        "T${twoDigits(now.hour)}"
-        ":${twoDigits(now.minute)}"
-        ":${twoDigits(now.second)}";
+  static String preProcessString(String st) {
+    while (st.length != (st = st.replaceAll(" ", " ")).length) {}
+    st = st.toLowerCase();
+    st = st.replaceAll("ё", "е"); // Подавление ё.
+    return st;
   }
 }

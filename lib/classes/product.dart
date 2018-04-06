@@ -18,6 +18,8 @@ class Product {
   bool isSale = false;
   String datePriceNew;
 
+  int order;
+
   Product({this.id,
     this.originalId,
     this.shopId,

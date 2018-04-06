@@ -6,7 +6,7 @@ import 'package:kd24_shop_spy/classes/user.dart';
 import 'package:path/path.dart';
 
 class HttpQuery {
-  static final String protocol = "https";
+  static final String protocol = "http";
   static final String baseUrl = "prodbasewebapi.azurewebsites.net";
 
 //  static final String protocol = "http";
@@ -37,11 +37,10 @@ class HttpQuery {
         headers: _headers,
       );
     }
-    var ret;
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200 || response.statusCode == 401) {
+    var ret = {};
+    try {
       ret = json.decode(response.body);
+
       if (ret is Map) {
         if (ret.containsKey("Message")) return {"error": ret["Message"]};
 
@@ -49,13 +48,15 @@ class HttpQuery {
 
         if (ret.containsKey("error")) return {"error": ret["error"]};
       }
-    } else if (response.statusCode == 204) {
+    } on Exception {}
+    if (response.statusCode == 202) {
       ret = {"success": true};
     }
+
     return ret;
   }
 
-  static Future<dynamic> sendData(String action, {dynamic params, String method = "get"}) async {
+  static Future<dynamic> sendData(String action, {dynamic params}) async {
     if (params == null) params = {};
     action = "api/" + action;
 
@@ -64,13 +65,11 @@ class HttpQuery {
       _headers["Authorization"] = User.localUser.tokenType + " " + User.localUser.token;
     }
     var client = new http.Client();
-    http.Response response = await client.post(hrefTo(action), headers: _headers, body: json.encoder.convert(params));
-    var ret;
-    print(response.statusCode);
-    print(response.body);
-    if (response.statusCode == 200) {
-      print(response.body);
+    http.Response response = await client.post(hrefTo(action), headers: _headers, body: params);
+    var ret = {};
+    try {
       ret = json.decode(response.body);
+
       if (ret is Map) {
         if (ret.containsKey("Message")) return {"error": ret["Message"]};
 
@@ -78,9 +77,11 @@ class HttpQuery {
 
         if (ret.containsKey("error")) return {"error": ret["error"]};
       }
-    } else if (response.statusCode == 202) {
+    } on Exception {}
+    if (response.statusCode == 202) {
       ret = {"success": true};
     }
+
     return ret;
   }
 }

@@ -12,6 +12,7 @@ import 'package:kd24_shop_spy/components/Search/searchBar.dart';
 import 'package:kd24_shop_spy/data/database.dart';
 import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/http_query.dart';
+import 'package:kd24_shop_spy/services/send_data.dart';
 import 'package:kd24_shop_spy/services/utils.dart';
 
 class ScreenProducts extends StatefulWidget {
@@ -102,14 +103,13 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   Future<List> _loadFromDatabase() async {
-    var _items = [];
+    List<Product> _items = [];
     var db = await DataBase.getInstance();
 
     if (!Config.moveDownDone) {
       List<Map> rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
-              .category}'" +
-              (searchPhrase != null ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'" : ""),
+              .category}'",
           order: "`name` ASC");
       if (rows.length != 0) {
         for (var product in rows) {
@@ -119,8 +119,7 @@ class ScreenProductsState extends State<ScreenProducts> {
     } else {
       List<Map> rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
-              .category}' AND `price_new` IS NULL" +
-              (searchPhrase != null ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'" : ""),
+              .category}' AND `price_new` IS NULL",
           order: "`name` ASC");
       if (rows.length != 0) {
         for (var product in rows) {
@@ -130,8 +129,7 @@ class ScreenProductsState extends State<ScreenProducts> {
 
       rows = await db.getRows("products",
           where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
-              .category}' AND `price_new` IS NOT NULL" +
-              (searchPhrase != null ? " AND `name` LIKE '%$searchPhrase%' OR `barcode` LIKE '%$searchPhrase%'" : ""),
+              .category}' AND `price_new` IS NOT NULL",
           order: "`name` ASC");
       if (rows.length != 0) {
         for (var product in rows) {
@@ -139,7 +137,19 @@ class ScreenProductsState extends State<ScreenProducts> {
         }
       }
     }
-    return _items;
+    List<Product> ret = [];
+    if (searchPhrase != null && searchPhrase.length > 3) {
+      for (var product in _items) {
+        var a = Utils.compResult(product.name, searchPhrase);
+        var b = Utils.compResult(product.barcode, searchPhrase);
+        product.order = a > b ? a : b;
+        print(product.order);
+        ret.add(product);
+      }
+      ret.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
+    } else
+      ret = _items;
+    return ret;
   }
 
   Future<bool> _handleRefresh() async {
@@ -167,7 +177,8 @@ class ScreenProductsState extends State<ScreenProducts> {
     }
     var db = await DataBase.getInstance();
     await db.insertList("products", _items);
-    wasUpdate = false;
+    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
+        replace: true, transition: TransitionType.fadeIn);
     return true;
   }
 
@@ -276,7 +287,7 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   openSendModal() async {
-    var ret = await Utils.sendProducts(context);
+    var ret = await SendData.sendProducts(context);
     if (ret != null && ret is String) {
       Navigator.pop(context);
       _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(ret)));

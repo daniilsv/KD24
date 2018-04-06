@@ -8,7 +8,7 @@ import 'package:kd24_shop_spy/components/Search/searchBar.dart';
 import 'package:kd24_shop_spy/data/database.dart';
 import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/http_query.dart';
-import 'package:kd24_shop_spy/services/utils.dart';
+import 'package:kd24_shop_spy/services/send_data.dart';
 
 class ScreenShops extends StatefulWidget {
   const ScreenShops({Key key}) : super(key: key);
@@ -160,7 +160,7 @@ class ScreenShopsState extends State<ScreenShops> {
   }
 
   openSendModal() async {
-    var ret = await Utils.sendProducts(context);
+    var ret = await SendData.sendProducts(context);
     if (ret != null && ret is String) {
       Navigator.pop(context);
       _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(ret)));
