@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/utils.dart';
 
@@ -61,7 +62,7 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             new ListTile(
-                              leading: const Icon(Icons.home),
+                              leading: const Icon(FontAwesomeIcons.home),
                               title: new Text('Магазины'),
                               onTap: () {
                                 Routes.backTo(context, "/shops");
@@ -71,7 +72,7 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                             widget.settingsWidget != null
                                 ? widget.settingsWidget
                                 : new ListTile(
-                              leading: const Icon(Icons.settings),
+                              leading: const Icon(FontAwesomeIcons.slidersH),
                               title: new Text('Настройки'),
                               onTap: () =>
                                   Routes.navigateTo(context, "/settings").then((var a) {
@@ -79,7 +80,7 @@ class _DrawerMainState extends State<DrawerMain> with TickerProviderStateMixin {
                                   }),
                             ),
                             new ListTile(
-                              leading: const Icon(Icons.exit_to_app),
+                              leading: const Icon(FontAwesomeIcons.signOutAlt),
                               title: new Text('Выход'),
                               onTap: () => Utils.logout(context),
                             )

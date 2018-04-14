@@ -59,12 +59,11 @@ class Utils {
         mc = 0,
         mpp = 0,
         mlp = 0;
-    st1 = preProcessString(st1);
-    st2 = preProcessString(st2);
+    st1 = st1.replaceAll("\\s+", " ").toLowerCase().replaceAll("ё", "е");
+    st2 = st2.replaceAll("\\s+", " ").toLowerCase().replaceAll("ё", "е");
     lmin = 3;
     l1 = st1.length;
     l2 = st2.length;
-
     if (l1 > l2) {
       st0 = st1;
       l0 = l1;
@@ -73,7 +72,15 @@ class Utils {
       st2 = st0;
       l2 = l0;
     }
-
+    if (l1 < lmin) lmin = l1;
+    if (l1 == 0) {
+      if (l2 == 0)
+        return (10100);
+      else
+        return (0);
+    }
+    mpp = 0;
+    mlp = 0;
     for (i = 0; i <= l1 - lmin; i++) {
       lmm = 0;
       lminc = lmin;
@@ -133,13 +140,9 @@ class Utils {
         mlp = lmm;
       }
     }
-    return ((mltot * 100 / l1) * 100 + 140 - 8 * mc - l2 * 32 / l1).toInt();
-  }
-
-  static String preProcessString(String st) {
-    while (st.length != (st = st.replaceAll(" ", " ")).length) {}
-    st = st.toLowerCase();
-    st = st.replaceAll("ё", "е"); // Подавление ё.
-    return st;
+    if (mltot > 0)
+      return ((mltot * 100 / l1) * 100 + 140 - 8 * mc - l2 * 32 / l1).toInt();
+    else
+      return (0);
   }
 }

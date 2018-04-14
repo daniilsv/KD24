@@ -78,17 +78,19 @@ class ScreenCategoriesState extends State<ScreenCategories> {
   Future<bool> _handleRefresh() async {
     var data = await HttpQuery
         .executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
+
     if (data is Map && data.containsKey("error")) {
       showInSnackBar(data["error"]);
       return false;
     }
+
     if ((data as List).length == 0) return false;
 
-    List<Map> _items = [];
+    List<Map> _products = [];
+    List<Map> _shopPrice = [];
     for (Map product in data) {
-      _items.add({
-        "original_id": int.parse(product['id']),
-        "shop_id": widget.shopId,
+      _products.add({
+        "id": product['id'],
         "category": product['category'],
         "name": product['name'],
         "brand": product['brand'],
@@ -97,9 +99,23 @@ class ScreenCategoriesState extends State<ScreenCategories> {
         "volume_value": product['volumeValue'],
         "image": product['image']
       });
+
+      _shopPrice.add({
+        "product_id": product['id'],
+        "shop_id": widget.shopId,
+        "price": product['lastPriceThisRetailer'],
+        "date": product['lastPriceThisRetailerDate']
+      });
+      _shopPrice.add({
+        "product_id": product['id'],
+        "shop_id": product['minPriceRetailerId'],
+        "price": product['minPrice'],
+      });
     }
+
     var db = await DataBase.getInstance();
-    await db.insertList("products", _items);
+    await db.insertList("products", _products);
+    await db.insertList("shop_products", _shopPrice);
     return true;
   }
 
@@ -121,7 +137,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
       appBar: new AppBar(
         title: new AsyncLoader(
           initState: () async => await _getAppBarTitle(),
-          renderLoad: () => new Center(child: new CircularProgressIndicator()),
+          renderLoad: () => const Center(),
           renderSuccess: ({data}) => data,
         ),
         backgroundColor: Colors.orange,
@@ -134,7 +150,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
           key: _productsLoaderState,
           initState: () async => await getCategories(),
           renderLoad: () => new Center(child: new CircularProgressIndicator()),
-          renderError: ([error]) => new Text('Странно.. Товары не загружаются.'),
+          renderError: ([error]) => new Text('Странно.. Категории не загружаются.'),
           renderSuccess: ({data}) => data,
         ),
       ),

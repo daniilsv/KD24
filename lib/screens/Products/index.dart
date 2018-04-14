@@ -4,6 +4,7 @@ import 'package:async_loader/async_loader.dart';
 import 'package:fluro/fluro.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kd24_shop_spy/classes/config.dart';
 import 'package:kd24_shop_spy/classes/product.dart';
 import 'package:kd24_shop_spy/classes/shop.dart';
@@ -34,16 +35,10 @@ class ScreenProductsState extends State<ScreenProducts> {
   var _items = [];
 
   String searchPhrase;
-  bool wasUpdate = false;
 
   getProducts() async {
-    if (_items.length == 0 || (wasUpdate && searchPhrase != null)) {
+    if (_items.length == 0 || searchPhrase != null) {
       _items = await _loadFromDatabase();
-      if (searchPhrase != null) if (searchPhrase == null && _items.length == 0) {
-        bool status = await _handleRefresh();
-        if (status) _items = await _loadFromDatabase();
-      }
-      wasUpdate = true;
     }
 
     return new ListView.builder(
@@ -72,18 +67,20 @@ class ScreenProductsState extends State<ScreenProducts> {
                       ),
                       new Row(
                         children: <Widget>[
+                          new Text("#" + product.order.toString()),
                           product.price != null
                               ? new Text(product.price.toString() ?? "", style: new TextStyle(color: Colors.grey))
                               : const Text(""),
-                          product.price != null ? new Icon(Icons.arrow_forward, size: 12.0) : const Text(""),
+                          product.price != null ? new Icon(FontAwesomeIcons.arrowRight, size: 12.0) : const Text(""),
                           product.priceNew == null
-                              ? const Icon(Icons.close, color: Colors.red)
+                              ? const Icon(FontAwesomeIcons.times, color: Colors.red)
                               : new Text(product.priceNew.toString() ?? "", style: new TextStyle(color: Colors.green)),
                           new Padding(
                               padding: new EdgeInsets.only(left: 10.0),
                               child: new Text("за ${product.volumeValue} ${product
                                   .volumeText}")),
-                          product.priceNew != null && product.isSale ? const Icon(Icons.star_border) : const Text(""),
+                          product.priceNew != null && product.isSale ? const Icon(FontAwesomeIcons.star) : const Text(
+                              ""),
                         ],
                       ),
                       new Padding(
@@ -138,13 +135,12 @@ class ScreenProductsState extends State<ScreenProducts> {
       }
     }
     List<Product> ret = [];
-    if (searchPhrase != null && searchPhrase.length > 3) {
+    if (searchPhrase != null && searchPhrase.length > 0) {
       for (var product in _items) {
         var a = Utils.compResult(product.name, searchPhrase);
         var b = Utils.compResult(product.barcode, searchPhrase);
         product.order = a > b ? a : b;
-        print(product.order);
-        ret.add(product);
+        if (product.order > 10) ret.add(product);
       }
       ret.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
     } else
@@ -152,37 +148,6 @@ class ScreenProductsState extends State<ScreenProducts> {
     return ret;
   }
 
-  Future<bool> _handleRefresh() async {
-    var data = await HttpQuery
-        .executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
-    if (data is Map && data.containsKey("error")) {
-      Utils.showInSnackBar(_scaffoldKey, data["error"]);
-      return false;
-    }
-    if ((data as List).length == 0) return false;
-
-    List<Map> _items = [];
-    for (Map product in data) {
-      _items.add({
-        "original_id": int.parse(product['id']),
-        "shop_id": widget.shopId,
-        "category": product['category'],
-        "name": product['name'],
-        "brand": product['brand'],
-        "barcode": product['barCode'],
-        "volume": product['volume'],
-        "volume_value": product['volumeValue'],
-        "image": product['image']
-      });
-    }
-    var db = await DataBase.getInstance();
-    await db.insertList("products", _items);
-    Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
-        replace: true, transition: TransitionType.fadeIn);
-    return true;
-  }
-
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<AsyncLoaderState> _productsLoaderState = new GlobalKey<AsyncLoaderState>();
 
   SearchBar searchBar;
@@ -238,28 +203,24 @@ class ScreenProductsState extends State<ScreenProducts> {
       key: _scaffoldKey,
       drawer: new DrawerMain(
         sendWidget: new ListTile(
-          leading: const Icon(Icons.send),
+          leading: const Icon(FontAwesomeIcons.telegramPlane),
           title: new Text('Отправить изменения'),
           onTap: () => openSendModal(),
         ),
         settingsWidget: new ListTile(
-          leading: const Icon(Icons.settings),
+          leading: const Icon(FontAwesomeIcons.slidersH),
           title: new Text('Настройки'),
           onTap: () => openSettings(),
         ),
       ),
       appBar: searchBar.build(context),
       floatingActionButton: _getFab(),
-      body: new RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: () => _handleRefresh(),
-        child: new AsyncLoader(
-          key: _productsLoaderState,
-          initState: () async => await getProducts(),
-          renderLoad: () => new Center(child: new CircularProgressIndicator()),
-          renderError: ([error]) => new Text('Странно.. Товары не загружаются.'),
-          renderSuccess: ({data}) => data,
-        ),
+      body: new AsyncLoader(
+        key: _productsLoaderState,
+        initState: () async => await getProducts(),
+        renderLoad: () => new Center(child: new CircularProgressIndicator()),
+        renderError: ([error]) => new Text('Странно.. Товары не загружаются.'),
+        renderSuccess: ({data}) => data,
       ),
     );
   }
@@ -306,7 +267,8 @@ class ScreenProductsState extends State<ScreenProducts> {
 
   _getFab() {
     if (searchPhrase != null && searchPhrase.length >= 8) {
-      return new FloatingActionButton(child: const Icon(Icons.add), onPressed: () => openProductAdd(searchPhrase));
+      return new FloatingActionButton(
+          child: const Icon(FontAwesomeIcons.plus), onPressed: () => openProductAdd(searchPhrase));
     }
   }
 }

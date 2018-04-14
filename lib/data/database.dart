@@ -15,32 +15,37 @@ class DataBase {
   Future open(String path) async {
     db = await openDatabase(path, version: 1, onCreate: (Database db, int version) {
       db.execute('''
-create table config ( 
+CREATE TABLE config ( 
   `key` text primary key not null, 
   `value` text not null)
 ''');
       db.execute('''
-create table shops ( 
+CREATE TABLE shops ( 
   `id` integer primary key, 
   `name` text not null)
 ''');
       db.execute('''
   CREATE TABLE products (
-   `id` integer PRIMARY KEY AUTOINCREMENT,
-   `original_id` integer NOT NULL,
-   `shop_id` integer NOT NULL,
+   `id` integer PRIMARY KEY,
    `category` text NOT NULL,
    `name` text NOT NULL,
-   `brand` text,
+   `brand` text DEFAULT NULL,
    `barcode` text,
    `volume` text,
    `volume_value` text,
-   `image` text,
+   `image` text
+);
+''');
+      db.execute('''
+  CREATE TABLE shop_products (
+   `product_id` integer NOT NULL,
+   `shop_id` integer NOT NULL,
    `price` real DEFAULT NULL,
+   `date` text DEFAULT NULL,
    `price_new` real DEFAULT NULL,
-   `price_new_date` text DEFAULT NULL,
-   `is_sale` integer DEFAULT 0,
-   CONSTRAINT index_id_shopid UNIQUE (`original_id`, `shop_id`)
+   `date_new` text DEFAULT NULL,
+   `is_sale_new` integer DEFAULT 0,
+   CONSTRAINT index_pid_shopid UNIQUE (`product_id`, `shop_id`)
 );
 ''');
     }, onUpgrade: (Database db, int versionOld, int versionNew) {});

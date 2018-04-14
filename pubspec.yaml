@@ -9,10 +9,10 @@ dependencies:
   async_loader: ^0.1.1
   json_annotation: ^0.2.2
   path_provider: ^0.3.0
-  material_search: ^0.2.1
   barcode_scan: ^0.0.3
   fluro: ^1.1.0
   flutter_advanced_networkimage: ^0.2.2
+  font_awesome_flutter: ^6.0.0
 
 
 # For information on the generic Dart part of this file, see the

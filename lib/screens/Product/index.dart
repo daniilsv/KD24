@@ -4,6 +4,7 @@ import 'package:async_loader/async_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kd24_shop_spy/classes/product.dart';
 import 'package:kd24_shop_spy/classes/shop.dart';
 import 'package:kd24_shop_spy/classes/user.dart';
@@ -194,7 +195,7 @@ class ScreenProductState extends State<ScreenProduct> {
                               textStyle: textStyle,
                               validateFunction: Validations.validatePrice,
                               textFieldColor: textFieldColor,
-                              icon: Icons.attach_money,
+                              icon: FontAwesomeIcons.rubleSign,
                               iconColor: Colors.black,
                               bottomMargin: 20.0,
                               onSaved: (String price) {

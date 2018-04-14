@@ -35,7 +35,7 @@ class ScreenSplashState extends State<ScreenSplash> {
     (await db.getRows("config")).forEach((var row) {
       print(row);
     });
-    Config.loadFromDB();
+    await Config.loadFromDB();
     User user = await User.fromDataBase();
     int now = new DateTime.now().millisecondsSinceEpoch ~/ 1000;
     print("Now is: " + now.toString());

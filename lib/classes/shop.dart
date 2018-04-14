@@ -6,6 +6,7 @@ class Shop {
   String name;
   bool isVisible;
   bool isVisibleApk;
+  int order;
 
   Shop({this.id, this.name = "", this.isVisible, this.isVisibleApk});
 

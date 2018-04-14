@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kd24_shop_spy/classes/user.dart';
 import 'package:kd24_shop_spy/components/Buttons/roundedButton.dart';
 import 'package:kd24_shop_spy/components/TextFields/inputField.dart';
@@ -68,6 +69,19 @@ class ScreenLoginState extends State<ScreenLogin> {
     }
   }
 
+  _loadUser() async {
+    var u = await UserLoginData.fromDataBase();
+    setState(() {
+      user.username = u.username;
+    });
+  }
+
+  @override
+  void initState() {
+    _loadUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery
@@ -98,11 +112,12 @@ class ScreenLoginState extends State<ScreenLogin> {
                         children: <Widget>[
                           new InputField(
                               hintText: "Username",
+                              initialText: user.username ?? "daniil",
                               obscureText: false,
                               textInputType: TextInputType.text,
                               textStyle: textStyle,
                               textFieldColor: textFieldColor,
-                              icon: Icons.account_circle,
+                              icon: FontAwesomeIcons.user,
                               iconColor: Colors.black,
                               bottomMargin: 20.0,
                               validateFunction: Validations.validateUsername,
@@ -112,10 +127,11 @@ class ScreenLoginState extends State<ScreenLogin> {
                           new InputField(
                               hintText: "Password",
                               obscureText: true,
+                              initialText: "9626961246",
                               textInputType: TextInputType.text,
                               textStyle: textStyle,
                               textFieldColor: textFieldColor,
-                              icon: Icons.lock,
+                              icon: FontAwesomeIcons.lock,
                               iconColor: Colors.black,
                               bottomMargin: 30.0,
                               validateFunction: Validations.validatePassword,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:async_loader/async_loader.dart';
 import "package:flutter/material.dart";
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kd24_shop_spy/classes/shop.dart';
 import 'package:kd24_shop_spy/components/Drawer/mainDrawer.dart';
 import 'package:kd24_shop_spy/components/Search/searchBar.dart';
@@ -9,6 +10,7 @@ import 'package:kd24_shop_spy/data/database.dart';
 import 'package:kd24_shop_spy/routes.dart';
 import 'package:kd24_shop_spy/services/http_query.dart';
 import 'package:kd24_shop_spy/services/send_data.dart';
+import 'package:kd24_shop_spy/services/utils.dart';
 
 class ScreenShops extends StatefulWidget {
   const ScreenShops({Key key}) : super(key: key);
@@ -66,12 +68,20 @@ class ScreenShopsState extends State<ScreenShops> {
   Future<List> _loadFromDatabase() async {
     var db = await DataBase.getInstance();
     var _items = [];
-    List rows = await db.getRows("shops",
-        order: "`name` ASC", where: searchPhrase != null ? "`name` LIKE '$searchPhrase%'" : null);
+    List rows = await db.getRows("shops", order: "`name` ASC");
     if (rows.length != 0) {
       rows.forEach((var shop) {
         _items.add(new Shop.fromJson(shop));
       });
+      List<Shop> ret = [];
+      if (searchPhrase != null && searchPhrase.length > 0) {
+        for (var shop in _items) {
+          shop.order = Utils.compResult(shop.name, searchPhrase);
+          if (shop.order > 10) ret.add(shop);
+        }
+        ret.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
+        _items = ret;
+      }
     }
     return _items;
   }
@@ -134,14 +144,14 @@ class ScreenShopsState extends State<ScreenShops> {
       key: _scaffoldKey,
       drawer: new DrawerMain(
         sendWidget: new ListTile(
-          leading: const Icon(Icons.send),
+          leading: const Icon(FontAwesomeIcons.telegramPlane),
           title: new Text('Отправить изменения'),
           onTap: () => openSendModal(),
         ),
       ),
       floatingActionButton: new FloatingActionButton(
         backgroundColor: Colors.green,
-        child: new Icon(Icons.send, color: Colors.white),
+        child: new Icon(FontAwesomeIcons.telegramPlane, color: Colors.white),
         onPressed: () => openSendModal(),
       ),
       appBar: searchBar.build(context),
