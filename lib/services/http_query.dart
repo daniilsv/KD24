@@ -24,7 +24,7 @@ class HttpQuery {
   static Future<dynamic> executeJsonQuery(String action, {Map<String, dynamic> params, String method = "get"}) async {
     if (params == null) params = {};
     action = "api/" + action;
-    Map _headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "application/json"};
+    Map<String, String> _headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "application/json"};
     if (User.localUser != null) {
       _headers["Authorization"] = User.localUser.tokenType + " " + User.localUser.token;
     }
@@ -37,10 +37,8 @@ class HttpQuery {
         headers: _headers,
       );
     }
-    var ret = {};
     try {
-      ret = json.decode(response.body);
-
+      var ret = json.decode(response.body);
       if (ret is Map) {
         if (ret.containsKey("Message")) return {"error": ret["Message"]};
 
@@ -48,12 +46,11 @@ class HttpQuery {
 
         if (ret.containsKey("error")) return {"error": ret["error"]};
       }
+      return ret;
     } on Exception {}
     if (response.statusCode == 202) {
-      ret = {"success": true};
+      return {"success": true};
     }
-
-    return ret;
   }
 
   static Future<dynamic> sendData(String action, {dynamic params}) async {

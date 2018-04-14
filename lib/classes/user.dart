@@ -11,9 +11,9 @@ class UserLoginData {
   UserLoginData({this.username = "", this.password = ""});
 
   static Future<UserLoginData> fromDataBase() async {
-    DataBase db = await DataBase.getInstance();
+    DataBase db = new DataBase();
     return new UserLoginData(
-      username: await db.getField("config", "key='username'", "value") ?? "",
+      username: await db.getField("config", "username", "value", filterField: "key") ?? "",
       password: null,
     );
   }
@@ -38,10 +38,11 @@ class User {
   static User localUser;
 
   static Future<User> fromDataBase() async {
-    DataBase db = await DataBase.getInstance();
+    DataBase db = new DataBase();
     return new User(
-        token: await db.getField("config", "key='token'", "value"),
-        tokenType: await db.getField("config", "key='token_type'", "value"),
-        tokenExpires: int.parse(await db.getField("config", "key='token_expires'", "value") ?? "0"));
+      token: await db.getField("config", "token", "value", filterField: "key"),
+      tokenType: await db.getField("config", "token_type", "value", filterField: "key"),
+      tokenExpires: int.parse(await db.getField("config", "token_expires", "value", filterField: "key") ?? "0"),
+    );
   }
 }

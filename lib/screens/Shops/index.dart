@@ -66,24 +66,20 @@ class ScreenShopsState extends State<ScreenShops> {
   }
 
   Future<List> _loadFromDatabase() async {
-    var db = await DataBase.getInstance();
-    var _items = [];
-    List rows = await db.getRows("shops", order: "`name` ASC");
-    if (rows.length != 0) {
-      rows.forEach((var shop) {
-        _items.add(new Shop.fromJson(shop));
-      });
-      List<Shop> ret = [];
-      if (searchPhrase != null && searchPhrase.length > 0) {
-        for (var shop in _items) {
-          shop.order = Utils.compResult(shop.name, searchPhrase);
-          if (shop.order > 10) ret.add(shop);
-        }
-        ret.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
-        _items = ret;
+    await new Future.delayed(new Duration(seconds: 1));
+    var db = new DataBase();
+    List<Shop> _items = await db.orderBy("name").get<Shop>("shops", callback: (Map item) => new Shop.fromJson(item));
+
+    List<Shop> ret = [];
+    if (searchPhrase != null && searchPhrase.length > 0) {
+      for (var shop in _items) {
+        shop.order = Utils.compResult(shop.name, searchPhrase);
+        if (shop.order > 10) ret.add(shop);
       }
-    }
-    return _items;
+      ret.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
+    } else
+      ret = _items;
+    return ret;
   }
 
   Future<bool> _handleRefresh() async {
@@ -98,7 +94,7 @@ class ScreenShopsState extends State<ScreenShops> {
     for (Map shop in data) {
       _items.add({"id": shop['id'], "name": shop['name']});
     }
-    var db = await DataBase.getInstance();
+    var db = new DataBase();
     await db.insertList("shops", _items);
     return true;
   }

@@ -1,12 +1,8 @@
-import 'dart:io';
-
 import "package:flutter/material.dart";
 import 'package:kd24_shop_spy/classes/config.dart';
 import 'package:kd24_shop_spy/classes/user.dart';
 import 'package:kd24_shop_spy/data/database.dart';
 import 'package:kd24_shop_spy/routes.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 
 class ScreenSplash extends StatefulWidget {
   const ScreenSplash({Key key}) : super(key: key);
@@ -28,13 +24,13 @@ class ScreenSplashState extends State<ScreenSplash> {
   }
 
   void _startHome() async {
-    DataBase db = await DataBase.getInstance();
+    var db = new DataBase();
+    await db.open();
 
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    await db.open(join(documentsDirectory.path, "kd24_shop_spy.db"));
-    (await db.getRows("config")).forEach((var row) {
+    (await db.get<Map>("config")).forEach((var row) {
       print(row);
     });
+
     await Config.loadFromDB();
     User user = await User.fromDataBase();
     int now = new DateTime.now().millisecondsSinceEpoch ~/ 1000;

@@ -32,7 +32,7 @@ class Utils {
   }
 
   static logout(BuildContext context) async {
-    DataBase db = await DataBase.getInstance();
+    var db = new DataBase();
     db.delete("config", "`key`='token'");
     db.delete("config", "`key`='token_type'");
     db.delete("config", "`key`='token_expires'");

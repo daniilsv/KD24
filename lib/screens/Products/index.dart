@@ -100,39 +100,34 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   Future<List> _loadFromDatabase() async {
+    await new Future.delayed(new Duration(milliseconds: 500));
     List<Product> _items = [];
-    var db = await DataBase.getInstance();
+    var db = new DataBase();
+    db
+        .select("p.*")
+        .joinLeft("products", "p", "p.id=i.product_id")
+        .filterEqual("i.shop_id", widget.shopId)
+        .filterEqual("p.category", widget.category)
+        .orderBy("p.name");
 
     if (!Config.moveDownDone) {
-      List<Map> rows = await db.getRows("products",
-          where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
-              .category}'",
-          order: "`name` ASC");
-      if (rows.length != 0) {
-        for (var product in rows) {
-          _items.add(new Product.fromJson(product));
-        }
-      }
+      List<Product> rows = await db.get<Product>("shop_products", callback: (Map item) => new Product.fromJson(item));
+      _items.addAll(rows);
     } else {
-      List<Map> rows = await db.getRows("products",
-          where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
-              .category}' AND `price_new` IS NULL",
-          order: "`name` ASC");
-      if (rows.length != 0) {
-        for (var product in rows) {
-          _items.add(new Product.fromJson(product));
-        }
-      }
+      List<Product> rows = await db
+          .filterIsNull("price_new")
+          .get<Product>("shop_products", callback: (Map item) => new Product.fromJson(item));
+      _items.addAll(rows);
 
-      rows = await db.getRows("products",
-          where: "`shop_id` = ${widget.shopId} AND `category` = '${widget
-              .category}' AND `price_new` IS NOT NULL",
-          order: "`name` ASC");
-      if (rows.length != 0) {
-        for (var product in rows) {
-          _items.add(new Product.fromJson(product));
-        }
-      }
+      rows = await db
+          .select("p.*")
+          .joinLeft("products", "p", "p.id=i.product_id")
+          .filterEqual("i.shop_id", widget.shopId)
+          .filterEqual("p.category", widget.category)
+          .orderBy("p.name")
+          .filterNotNull("price_new")
+          .get<Product>("shop_products", callback: (Map item) => new Product.fromJson(item));
+      _items.addAll(rows);
     }
     List<Product> ret = [];
     if (searchPhrase != null && searchPhrase.length > 0) {
@@ -153,9 +148,8 @@ class ScreenProductsState extends State<ScreenProducts> {
   SearchBar searchBar;
 
   Future _getAppBarTitle() async {
-    DataBase db = await DataBase.getInstance();
-    Map _shop = await db.getRow("shops", "`id`=${widget.shopId}");
-    shop = new Shop.fromJson(_shop);
+    DataBase db = new DataBase();
+    shop = await db.getItemById("shops", widget.shopId, callback: (Map shop) => new Shop.fromJson(shop));
     return new ListTile(
       title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
       subtitle: new Text(widget.category, style: new TextStyle(color: Colors.white)),

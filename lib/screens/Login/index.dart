@@ -44,25 +44,25 @@ class ScreenLoginState extends State<ScreenLogin> {
           return;
         }
         var _userData = new User.fromJson(data);
-        DataBase.getInstance().then((DataBase db) {
-          db.updateOrInsert("config", {
-            "key": "username",
-            "value": user.username,
-          });
-          db.updateOrInsert("config", {
-            "key": "token",
-            "value": _userData.token,
-          });
-          db.updateOrInsert("config", {
-            "key": "token_type",
-            "value": _userData.tokenType,
-          });
-          db.updateOrInsert("config", {
-            "key": "token_expires",
-            "value": _userData.tokenExpires + new DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          });
-        });
         User.localUser = _userData;
+
+        var db = new DataBase();
+        db.updateOrInsert("config", {
+          "key": "username",
+          "value": user.username,
+        });
+        db.updateOrInsert("config", {
+          "key": "token",
+          "value": _userData.token,
+        });
+        db.updateOrInsert("config", {
+          "key": "token_type",
+          "value": _userData.tokenType,
+        });
+        db.updateOrInsert("config", {
+          "key": "token_expires",
+          "value": _userData.tokenExpires + new DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        });
 
         Routes.navigateTo(context, "/shops", replace: true);
       });

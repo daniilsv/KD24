@@ -37,20 +37,22 @@ class Product {
 
   String get volumeText => volume == "Вес" ? "кг" : volume == "Объем" ? "л" : "шт";
 
-  factory Product.fromJson(Map<String, dynamic> json) =>
-      new Product(
-          id: json['id'],
-          originalId: json['original_id'],
-          shopId: json['shop_id'],
-          name: json['name'] as String,
-          category: json['category'] as String,
-          brand: json['brand'] as String,
-          barcode: json['barcode'] as String,
-          volume: json['volume'] as String,
-          volumeValue: json['volume_value'] as String,
-          image: json['image'] as String,
-          price: json['price'],
-          priceNew: json['price_new'],
-          isSale: json['is_sale'] == 1,
-          datePriceNew: json['price_new_date']);
+  factory Product.fromJson(Map<String, dynamic> json) {
+    print(json);
+    return new Product(
+        id: json['id'],
+        originalId: json['original_id'],
+        shopId: json['shop_id'],
+        name: json['name'] as String,
+        category: json['category'] as String,
+        brand: json['brand'] as String,
+        barcode: json['barcode'] as String,
+        volume: json['volume'] as String,
+        volumeValue: json['volume_value'] as String,
+        image: json['image'] as String,
+        price: json['price'],
+        priceNew: json['price_new'],
+        isSale: json['is_sale'] == 1,
+        datePriceNew: json['price_new_date']);
+  }
 }

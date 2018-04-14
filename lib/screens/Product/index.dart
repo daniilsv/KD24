@@ -30,7 +30,7 @@ class ScreenProduct extends StatefulWidget {
 class ScreenProductState extends State<ScreenProduct> {
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final GlobalKey<AsyncLoaderState> _imageLoaderState = new GlobalKey<AsyncLoaderState>();
+  final GlobalKey<AsyncLoaderState> _productLoaderState = new GlobalKey<AsyncLoaderState>();
   Product product = new Product();
   ScrollController scrollController = new ScrollController();
   UserLoginData user = new UserLoginData();
@@ -48,8 +48,8 @@ class ScreenProductState extends State<ScreenProduct> {
       showInSnackBar('Please fix the errors in red before submitting.');
     } else {
       form.save();
-      product.datePriceNew = Utils.getDateTimeNow(); //"dd.MM.yyyyTHH:mm:ss"
-      DataBase db = await DataBase.getInstance();
+      product.datePriceNew = Utils.getDateTimeNow();
+      var db = new DataBase();
       await db.update("products", "`id` = ${product.id}",
           {"is_sale": product.isSale ? 1 : 0, "price_new": product.priceNew, "price_new_date": product.datePriceNew});
       Navigator.pop(context, product);
@@ -57,8 +57,8 @@ class ScreenProductState extends State<ScreenProduct> {
   }
 
   Future _getAppBarTitle() async {
-    DataBase db = await DataBase.getInstance();
-    Map _shop = await db.getRow("shops", "`id`=${widget.shopId}");
+    var db = new DataBase();
+    Map _shop = await db.getItemById("shops", widget.shopId);
     shop = new Shop.fromJson(_shop);
     return new ListTile(
       title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
@@ -66,45 +66,135 @@ class ScreenProductState extends State<ScreenProduct> {
     );
   }
 
-  Future _getImage() async {
-    await new Future.delayed(new Duration(milliseconds: 500));
-    try {
-      Widget image = new Image(
-        image: new AdvancedNetworkImage(
-            HttpQuery.hrefTo("prodbasecontent/Images",
-                baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
-            useDiskCache: true),
-        fit: BoxFit.contain,
-        width: MediaQuery
-            .of(context)
-            .size
-            .width * 0.8,
-        height: MediaQuery
-            .of(context)
-            .size
-            .height / 3,
-        alignment: Alignment.center,
-      );
-      return image;
-    } on Exception {
-      return null;
-    }
+  Future<Widget> getProduct(BuildContext context) async {
+    var db = new DataBase();
+    Map _product = await db.getItemById("products", widget.id);
+    product = new Product.fromJson(_product);
+
+    final Size screenSize = MediaQuery.of(context).size;
+
+    return new Padding(
+      padding: new EdgeInsets.all(8.0),
+      child: new Column(
+        children: <Widget>[
+          new Center(
+            child: new Image(
+              image: new AdvancedNetworkImage(
+                  HttpQuery.hrefTo("prodbasecontent/Images",
+                      baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
+                  useDiskCache: true),
+              fit: BoxFit.contain,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.8,
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height / 3,
+              alignment: Alignment.center,
+            ),
+          ),
+          new ListTile(
+            title: new Text(product.name),
+            subtitle: new Text(product.barcode, style: new TextStyle(fontSize: 16.0)),
+          ),
+          new Divider(color: Colors.black),
+          new Row(
+            children: <Widget>[
+              const Text("Цена за"),
+              new Padding(padding: new EdgeInsets.only(left: 20.0), child: new Text(product.volumeValue)),
+              new Padding(
+                padding: new EdgeInsets.only(left: 20.0),
+                child: new DropdownButton(
+                    onChanged: (String value) {
+                      product.volume = value;
+                    },
+                    value: product.volume,
+                    items: [
+                      new DropdownMenuItem<String>(
+                        child: const Text("кг."),
+                        value: "Вес",
+                      ),
+                      new DropdownMenuItem<String>(
+                        child: const Text("л."),
+                        value: "Объем",
+                      ),
+                      new DropdownMenuItem<String>(
+                        child: const Text("шт."),
+                        value: "Штука",
+                      ),
+                    ]),
+              )
+            ],
+          ),
+          product.price != null
+              ? new Row(
+            children: <Widget>[
+              const Text("Старая цена: "),
+              new Padding(
+                padding: new EdgeInsets.only(left: 20.0),
+                child: new Text(product.price.toString()),
+              )
+            ],
+          )
+              : const Text(""),
+          new InputField(
+            hintText: "Price",
+            obscureText: false,
+            initialText: "",
+            textInputType: TextInputType.number,
+            textStyle: textStyle,
+            validateFunction: Validations.validatePrice,
+            textFieldColor: textFieldColor,
+            icon: FontAwesomeIcons.rubleSign,
+            iconColor: Colors.black,
+            bottomMargin: 20.0,
+            onSaved: (String price) {
+              product.priceNew = double.parse(price);
+            },
+          ),
+          new Row(
+            children: <Widget>[
+              const Text("Акционная цена"),
+              new Checkbox(
+                  onChanged: (bool value) {
+                    setState(() {
+                      product.isSale = value;
+                    });
+                  },
+                  activeColor: Colors.orangeAccent,
+                  value: product.isSale)
+            ],
+          ),
+          new RoundedButton(
+            buttonName: "Сохранить",
+            onTap: () {
+              _handleSubmitted();
+            },
+            width: screenSize.width,
+            height: 50.0,
+            bottomMargin: 10.0,
+            borderWidth: 0.0,
+            buttonColor: primaryColor,
+          ),
+          product.priceNew != null
+              ? product.datePriceNew == null
+              ? new Text("Выгружено: ${product.priceNew}", style: new TextStyle(color: Colors.green))
+              : new Text("Не выгружено", style: new TextStyle(color: Colors.red))
+              : const Text("")
+        ],
+      ),
+    );
   }
 
   @override
   void initState() {
-    DataBase.getInstance().then((DataBase db) async {
-      Map _product = await db.getRow("products", "`id`=${widget.id}");
-      setState(() {
-        product = new Product.fromJson(_product);
-      });
-    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
@@ -127,115 +217,15 @@ class ScreenProductState extends State<ScreenProduct> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     new Form(
-                      key: formKey,
-                      autovalidate: autovalidate,
-                      child: new Padding(
-                        padding: new EdgeInsets.all(8.0),
-                        child: new Column(
-                          children: <Widget>[
-                            new Center(
-                              child: new AsyncLoader(
-                                key: _imageLoaderState,
-                                initState: () async => await _getImage(),
-                                renderLoad: () => new Center(child: new CircularProgressIndicator()),
-                                renderSuccess: ({data}) => data,
-                                renderError: ([e]) => new Center(child: new CircularProgressIndicator()),
-                              ),
-                            ),
-                            new ListTile(
-                              title: new Text(product.name),
-                              subtitle: new Text(product.barcode, style: new TextStyle(fontSize: 16.0)),
-                            ),
-                            new Divider(color: Colors.black),
-                            new Row(
-                              children: <Widget>[
-                                const Text("Цена за"),
-                                new Padding(
-                                    padding: new EdgeInsets.only(left: 20.0), child: new Text(product.volumeValue)),
-                                new Padding(
-                                  padding: new EdgeInsets.only(left: 20.0),
-                                  child: new DropdownButton(
-                                      onChanged: (String value) {
-                                        product.volume = value;
-                                      },
-                                      value: product.volume,
-                                      items: [
-                                        new DropdownMenuItem<String>(
-                                          child: const Text("кг."),
-                                          value: "Вес",
-                                        ),
-                                        new DropdownMenuItem<String>(
-                                          child: const Text("л."),
-                                          value: "Объем",
-                                        ),
-                                        new DropdownMenuItem<String>(
-                                          child: const Text("шт."),
-                                          value: "Штука",
-                                        ),
-                                      ]),
-                                )
-                              ],
-                            ),
-                            product.price != null
-                                ? new Row(
-                              children: <Widget>[
-                                const Text("Старая цена: "),
-                                new Padding(
-                                  padding: new EdgeInsets.only(left: 20.0),
-                                  child: new Text(product.price.toString()),
-                                )
-                              ],
-                            )
-                                : const Text(""),
-                            new InputField(
-                              hintText: "Price",
-                              obscureText: false,
-                              initialText: "",
-                              textInputType: TextInputType.number,
-                              textStyle: textStyle,
-                              validateFunction: Validations.validatePrice,
-                              textFieldColor: textFieldColor,
-                              icon: FontAwesomeIcons.rubleSign,
-                              iconColor: Colors.black,
-                              bottomMargin: 20.0,
-                              onSaved: (String price) {
-                                product.priceNew = double.parse(price);
-                              },
-                            ),
-                            new Row(
-                              children: <Widget>[
-                                const Text("Акционная цена"),
-                                new Checkbox(
-                                    onChanged: (bool value) {
-                                      setState(() {
-                                        product.isSale = value;
-                                      });
-                                    },
-                                    activeColor: Colors.orangeAccent,
-                                    value: product.isSale)
-                              ],
-                            ),
-                            new RoundedButton(
-                              buttonName: "Сохранить",
-                              onTap: () {
-                                _handleSubmitted();
-                              },
-                              width: screenSize.width,
-                              height: 50.0,
-                              bottomMargin: 10.0,
-                              borderWidth: 0.0,
-                              buttonColor: primaryColor,
-                            ),
-                            product.priceNew != null
-                                ? product.datePriceNew == null
-                                ? new Text("Выгружено: ${product.priceNew}",
-                                style: new TextStyle(color: Colors.green))
-                                : new Text("Не выгружено", style: new TextStyle(color: Colors.red))
-                                : const Text("")
-                          ],
-                        ),
-                      ),
-                    )
+                        key: formKey,
+                        autovalidate: autovalidate,
+                        child: new AsyncLoader(
+                          key: _productLoaderState,
+                          initState: () async => await getProduct(context),
+                          renderLoad: () => new Center(child: new CircularProgressIndicator()),
+                          renderSuccess: ({data}) => data,
+                          renderError: ([e]) => new Center(child: new CircularProgressIndicator()),
+                        ))
                   ],
                 ),
               )

@@ -8,16 +8,15 @@ class Config {
   static bool moveDownDone;
 
   static Future loadFromDB() async {
-    DataBase db = await DataBase.getInstance();
-    moveDownDone = (await db.getField("config", "key='move_down_done'", "value")) == "1";
+    DataBase db = new DataBase();
+    moveDownDone = (await db.getField("config", "move_down_done", "value", filterField: "key")) == "1";
   }
 
   static Future saveToDB() async {
-    DataBase.getInstance().then((DataBase db) {
-      db.updateOrInsert("config", {
-        "key": "move_down_done",
-        "value": moveDownDone ? "1" : "0",
-      });
+    DataBase db = new DataBase();
+    db.updateOrInsert("config", {
+      "key": "move_down_done",
+      "value": moveDownDone ? "1" : "0",
     });
   }
 }

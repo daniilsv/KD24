@@ -63,10 +63,17 @@ class ScreenCategoriesState extends State<ScreenCategories> {
   }
 
   Future<List> _loadCategoriesFromDatabase() async {
+    await new Future.delayed(new Duration(seconds: 1));
     var _categories = [];
-    var db = await DataBase.getInstance();
-    List<Map> rows = await db.getRows("products",
-        where: "`shop_id` = ${widget.shopId}", order: "`category` ASC", group: "`category`");
+    DataBase db = new DataBase();
+    List<Map> rows = await db
+        .selectOnly("p.category")
+        .joinLeft("products", "p", "p.id=i.product_id")
+        .filterEqual("shop_id", widget.shopId)
+        .orderBy("p.category")
+        .groupBy("p.category")
+        .get("shop_products");
+
     if (rows.length != 0) {
       rows.forEach((var row) {
         _categories.add(row);
@@ -113,7 +120,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
       });
     }
 
-    var db = await DataBase.getInstance();
+    var db = new DataBase();
     await db.insertList("products", _products);
     await db.insertList("shop_products", _shopPrice);
     return true;
@@ -123,9 +130,8 @@ class ScreenCategoriesState extends State<ScreenCategories> {
   final GlobalKey<AsyncLoaderState> _productsLoaderState = new GlobalKey<AsyncLoaderState>();
 
   Future _getAppBarTitle() async {
-    DataBase db = await DataBase.getInstance();
-    Map _shop = await db.getRow("shops", "`id`=${widget.shopId}");
-    shop = new Shop.fromJson(_shop);
+    var db = new DataBase();
+    shop = await db.getItemById("shops", widget.shopId, callback: (Map shop) => new Shop.fromJson(shop));
     return new Text(shop.name, style: new TextStyle(color: Colors.white));
   }
 
