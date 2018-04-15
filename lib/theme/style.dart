@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 TextStyle textStyle = const TextStyle(color: Colors.black, fontSize: 16.0, fontWeight: FontWeight.normal);
+TextStyle hintStyle = const TextStyle(color: Colors.black45, fontSize: 16.0, fontWeight: FontWeight.normal);
 
 ThemeData appTheme = new ThemeData(
   hintColor: Colors.black,

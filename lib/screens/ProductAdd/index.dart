@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shop_spy/classes/shop.dart';
+import 'package:shop_spy/components/TextFields/inputField.dart';
 import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
 import 'package:shop_spy/services/utils.dart';
+import 'package:shop_spy/theme/style.dart';
 
 class ScreenProductAdd extends StatefulWidget {
   ScreenProductAdd({Key key, this.shopId, this.category, this.phrase}) : super(key: key);
@@ -108,12 +110,30 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
       child: new Column(
         children: <Widget>[
           new Center(child: image),
-          new TextFormField(
-            initialValue: widget.phrase != null && !isBarcode ? widget.phrase : "",
-          ),
-          new TextFormField(
-            initialValue: widget.phrase != null && isBarcode ? widget.phrase : "",
-          )
+          new InputField(
+              hintText: "Наименование",
+              initialText: widget.phrase != null && !isBarcode ? widget.phrase : "",
+              obscureText: false,
+              textInputType: TextInputType.text,
+              textStyle: textStyle,
+              textFieldColor: textFieldColor,
+              hintStyle: hintStyle,
+              icon: FontAwesomeIcons.font,
+              iconColor: Colors.black,
+              bottomMargin: 20.0,
+              onSaved: (String value) {}),
+          new InputField(
+              hintText: "Штрих-код",
+              initialText: widget.phrase != null && isBarcode ? widget.phrase : "",
+              obscureText: false,
+              textInputType: TextInputType.text,
+              textStyle: textStyle,
+              hintStyle: hintStyle,
+              textFieldColor: textFieldColor,
+              icon: FontAwesomeIcons.barcode,
+              iconColor: Colors.black,
+              bottomMargin: 20.0,
+              onSaved: (String value) {}),
         ],
       ),
     );
