@@ -43,14 +43,15 @@ class _ScreenCameraState extends State<ScreenCamera> {
       );
     }
     return new Scaffold(
-        body: columnChildren,
-        floatingActionButton: (controller == null)
-            ? null
-            : new FloatingActionButton.extended(
-                onPressed: controller.value.isStarted ? capture : null,
-                icon: const Icon(Icons.camera),
-                label: new Text("Shot"),
-              ));
+      body: columnChildren,
+      floatingActionButton: (controller == null)
+          ? null
+          : new FloatingActionButton.extended(
+        onPressed: controller.value.isStarted ? capture : null,
+        icon: const Icon(Icons.camera),
+        label: new Text("Shot"),
+      ),
+    );
   }
 
   int curCam = -1;

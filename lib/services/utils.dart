@@ -150,7 +150,7 @@ class Utils {
     var s1 = 0;
     var s2 = 0;
 
-    if (!new RegExp("/^[0-9]+\$/").hasMatch(code)) {
+    if (!new RegExp("^[0-9]+").hasMatch(code)) {
       return false;
     }
 
@@ -160,6 +160,10 @@ class Utils {
 
     if (code.length == 12) {
       code = '0' + code;
+    }
+
+    if (code.length == 8) {
+      code = '00000' + code;
     }
 
     for (var i = 1; i < code.length; i += 2) {
