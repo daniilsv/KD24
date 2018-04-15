@@ -17,42 +17,48 @@ class SendData {
       toSend.add(new Product.fromJson(product));
     }
 
-    return showDialog<String>(
+    return showModalBottomSheet<String>(
       context: context,
-      barrierDismissible: true,
-      child: new AlertDialog(
-        title: new Text('Выгрузить цены'),
-        content: new SingleChildScrollView(
-          child: new ListBody(
-            children: toSend.length != 0
-                ? <Widget>[
-                    new Text("Вы точно хотите выгрузить обновление цен?"),
-                    new Text("Будет выгружена информация о ценах ${toSend
-                  .length} товаров")
-                  ]
-                : <Widget>[
-                    new Text("Вы еще не уточнили ни одной цены."),
-                  ],
-          ),
-        ),
-        actions: <Widget>[
-          new FlatButton(
-            child: new Text('Отмена', style: new TextStyle(color: Colors.red)),
-            onPressed: () {
-              Navigator.of(context).pop(null);
+      builder: (BuildContext context) {
+        final Size screenSize = MediaQuery
+            .of(context)
+            .size;
+
+        List<Widget> body = [];
+
+        if (toSend.length != 0) {
+          body.add(new Text("Вы точно хотите выгрузить обновление цен?"));
+          body.add(new Text("Будет выгружена информация о ценах ${toSend.length}товаров"));
+        } else
+          body.add(new Text("Вы еще не уточнили ни одной цены."));
+
+        body.add(new ButtonBar(
+          alignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            new FlatButton(
+              child: new Text('Отмена', style: new TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(null);
+              },
+            ),
+          ],
+        ));
+        if (toSend.length != 0)
+          (body.last as ButtonBar).children.add(new FlatButton(
+            child: new Text('Выгрузить', style: new TextStyle(color: Colors.green)),
+            onPressed: () async {
+              String res = await _sendPrices();
+              Navigator.of(context).pop(res);
             },
+          ));
+
+        return new Container(
+          child: new ConstrainedBox(
+            constraints: new BoxConstraints(maxHeight: 132.0),
+            child: new Padding(padding: new EdgeInsets.all(16.0), child: new Column(children: body)),
           ),
-          toSend.length != 0
-              ? new FlatButton(
-                  child: new Text('Выгрузить', style: new TextStyle(color: Colors.green)),
-                  onPressed: () async {
-                    String res = await _sendPrices();
-                    Navigator.of(context).pop(res);
-                  },
-                )
-              : new Text(""),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -62,9 +68,9 @@ class SendData {
       data.add({
         "retailerId": product.shopId,
         "productId": product.originalId,
-        "typeId": product.isSale ? 1 : 0,
+        "typeId": product.isSaleNew ? 1 : 0,
         "price1": product.priceNew,
-        "date": product.datePriceNew
+        "date": product.dateNew
       });
     });
     var ret = await HttpQuery.sendData("Prices/sendPriceArray", params: json.encode(data));
@@ -76,7 +82,7 @@ class SendData {
       }
       return "${toSend.length} обновлений цен успешно выгружены";
     } else {
-      return "Что-то пошло не так...";
+      return ret['error'];
     }
   }
 }

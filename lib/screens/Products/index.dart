@@ -79,8 +79,9 @@ class ScreenProductsState extends State<ScreenProducts> {
                               padding: new EdgeInsets.only(left: 10.0),
                               child: new Text("за ${product.volumeValue} ${product
                                   .volumeText}")),
-                          product.priceNew != null && product.isSale ? const Icon(FontAwesomeIcons.star) : const Text(
-                              ""),
+                          product.priceNew != null && product.isSaleNew
+                              ? const Icon(FontAwesomeIcons.star)
+                              : const Text(""),
                         ],
                       ),
                       new Padding(
@@ -100,7 +101,6 @@ class ScreenProductsState extends State<ScreenProducts> {
   }
 
   Future<List> _loadFromDatabase() async {
-    await new Future.delayed(new Duration(milliseconds: 500));
     List<Product> _items = [];
     var db = new DataBase();
     db

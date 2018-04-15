@@ -46,7 +46,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
                   height: 50.0,
                   child: new ListTile(
                     title: new Text(
-                      _items[index]["category"],
+                      _items[index],
                       style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -54,7 +54,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
                       Routes.navigateTo(
                           context,
                           "/shop/${widget.shopId}/"
-                              "${_items[index]["category"]}"),
+                              "${_items[index]}"),
                 ),
           ))
         ]);
@@ -63,22 +63,15 @@ class ScreenCategoriesState extends State<ScreenCategories> {
   }
 
   Future<List> _loadCategoriesFromDatabase() async {
-    await new Future.delayed(new Duration(seconds: 1));
-    var _categories = [];
-    DataBase db = new DataBase();
-    List<Map> rows = await db
+    var db = new DataBase();
+    List<String> _categories = await db
         .selectOnly("p.category")
         .joinLeft("products", "p", "p.id=i.product_id")
         .filterEqual("shop_id", widget.shopId)
         .orderBy("p.category")
         .groupBy("p.category")
-        .get("shop_products");
+        .get<String>("shop_products", callback: (var row) => row['category']);
 
-    if (rows.length != 0) {
-      rows.forEach((var row) {
-        _categories.add(row);
-      });
-    }
     return _categories;
   }
 
@@ -93,9 +86,9 @@ class ScreenCategoriesState extends State<ScreenCategories> {
 
     if ((data as List).length == 0) return false;
 
-    List<Map> _products = [];
-    List<Map> _shopPrice = [];
-    for (Map product in data) {
+    List<Map<String, dynamic>> _products = [];
+    List<Map<String, dynamic>> _shopPrice = [];
+    for (Map<String, dynamic> product in data) {
       _products.add({
         "id": product['id'],
         "category": product['category'],
@@ -110,13 +103,15 @@ class ScreenCategoriesState extends State<ScreenCategories> {
       _shopPrice.add({
         "product_id": product['id'],
         "shop_id": widget.shopId,
-        "price": product['lastPriceThisRetailer'],
-        "date": product['lastPriceThisRetailerDate']
+        "price": (product['lastPriceThisRetailer'] as String).length > 2
+            ? double.parse(product['lastPriceThisRetailer'])
+            : 0.0,
+        "date": (product['lastPriceThisRetailerDate'] as String).length > 2 ? product['lastPriceThisRetailerDate'] : 0.0
       });
       _shopPrice.add({
         "product_id": product['id'],
         "shop_id": product['minPriceRetailerId'],
-        "price": product['minPrice'],
+        "price": (product['minPrice'] as String).length > 2 ? product['minPrice'] : 0.0
       });
     }
 

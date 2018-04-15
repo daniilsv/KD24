@@ -4,15 +4,19 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^0.1.0
-  sqflite: ^0.8.4
   async_loader: ^0.1.1
-  json_annotation: ^0.2.2
+
+  cupertino_icons: ^0.1.0
+  font_awesome_flutter: ^6.0.0
+
+  sqflite: ^0.8.4
   path_provider: ^0.3.0
+
+  json_annotation: ^0.2.2 #https://github.com/dart-lang/json_serializable/blob/master/example/lib/example.dart
   barcode_scan: ^0.0.3
   fluro: ^1.1.0
   flutter_advanced_networkimage: ^0.2.2
-  font_awesome_flutter: ^6.0.0
+
 
 
 # For information on the generic Dart part of this file, see the

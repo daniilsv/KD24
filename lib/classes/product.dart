@@ -14,9 +14,10 @@ class Product {
   String image;
 
   double price;
-  double priceNew = 0.0;
-  bool isSale = false;
-  String datePriceNew;
+  String date;
+  double priceNew;
+  String dateNew;
+  bool isSaleNew = false;
 
   int order;
 
@@ -31,17 +32,28 @@ class Product {
     this.volumeValue = "1",
     this.image = "",
     this.price = 0.0,
+    this.date = "",
     this.priceNew = 0.0,
-    this.isSale = false,
-    this.datePriceNew});
+    this.dateNew = "",
+    this.isSaleNew = false});
 
-  String get volumeText => volume == "Вес" ? "кг" : volume == "Объем" ? "л" : "шт";
+  String get volumeText {
+    switch (volume) {
+      case "Вес":
+        return "кг";
+        break;
+      case "Объем":
+        return "л";
+        break;
+      default:
+        return "шт";
+        break;
+    }
+  }
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    print(json);
-    return new Product(
+  factory Product.fromJson(Map<String, dynamic> json) =>
+      new Product(
         id: json['id'],
-        originalId: json['original_id'],
         shopId: json['shop_id'],
         name: json['name'] as String,
         category: json['category'] as String,
@@ -50,9 +62,10 @@ class Product {
         volume: json['volume'] as String,
         volumeValue: json['volume_value'] as String,
         image: json['image'] as String,
-        price: json['price'],
-        priceNew: json['price_new'],
-        isSale: json['is_sale'] == 1,
-        datePriceNew: json['price_new_date']);
-  }
+        price: json['price'] as double,
+        date: json['date'],
+        priceNew: json['price_new'] as double,
+        dateNew: json['date_new'],
+        isSaleNew: json['is_sale_new'] == 1,
+      );
 }

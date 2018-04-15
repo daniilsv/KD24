@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:json_annotation/json_annotation.dart';
 import 'package:kd24_shop_spy/data/database.dart';
 
-@JsonSerializable()
 class Config {
+  static final String dbName = "kd24_shop_spy";
+  static final int dbVersion = 1;
+
   static bool moveDownDone;
 
   static Future loadFromDB() async {

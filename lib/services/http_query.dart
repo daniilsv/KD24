@@ -57,15 +57,15 @@ class HttpQuery {
     if (params == null) params = {};
     action = "api/" + action;
 
-    Map _headers = {"Content-type": "application/json", "Accept": "application/json"};
+    Map<String, String> _headers = {"Content-type": "application/json", "Accept": "application/json"};
     if (User.localUser != null) {
       _headers["Authorization"] = User.localUser.tokenType + " " + User.localUser.token;
     }
     var client = new http.Client();
     http.Response response = await client.post(hrefTo(action), headers: _headers, body: params);
-    var ret = {};
+
     try {
-      ret = json.decode(response.body);
+      var ret = json.decode(response.body);
 
       if (ret is Map) {
         if (ret.containsKey("Message")) return {"error": ret["Message"]};
@@ -76,9 +76,7 @@ class HttpQuery {
       }
     } on Exception {}
     if (response.statusCode == 202) {
-      ret = {"success": true};
+      return {"success": true};
     }
-
-    return ret;
   }
 }

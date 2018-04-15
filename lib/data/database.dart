@@ -1,25 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:kd24_shop_spy/classes/config.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DataBase {
-  static final DataBase _singleton = new DataBase._internal();
-
-  factory DataBase() {
-    return _singleton;
-  }
-
-  DataBase._internal();
-
-  Database db;
+  static Database db;
 
   Future open() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = context.join(documentsDirectory.path, "kd24_shop_spy.db");
-    db = await openDatabase(path, version: 1, onCreate: (Database db, int version) {
+    String path = context.join(documentsDirectory.path, Config.dbName + ".db");
+    db = await openDatabase(path, version: Config.dbVersion, onCreate: (Database db, int version) {
       db.execute('''
 CREATE TABLE config ( 
   `key` text primary key not null, 
@@ -366,32 +359,31 @@ CREATE TABLE shops (
   Future<int> deleteFiltered(table) {
     String where = _where;
     this.resetFilters();
-    return db.delete(table, where: where);
+
+    String sql = "DELETE FROM $table WHERE $where;";
+    return db.rawDelete(sql);
   }
 
-  Future<int> update(String table, value, Map data, {String field = 'id'}) {
+  Future<int> update(String table, value, Map<String, dynamic> data, {String field = 'id'}) {
     this.filterEqual(field, value);
     return this.updateFiltered(table, data);
   }
 
-  Future<int> updateFiltered(String table, Map data) {
+  Future<int> updateFiltered(String table, Map<String, dynamic> data) {
     String where = _where;
     this.resetFilters();
-    return db.update(table, data, where: where);
+    List keys = data.keys.map((var l) => "`$l`=?").toList();
+    String sql = "UPDATE $table SET ${keys.join(",")} WHERE ${where.replaceAll("i\.", "")};";
+    return db.rawUpdate(sql, data.values.toList());
   }
 
-  Future insertList(String table, List<Map> datas) async {
-    List keys = datas.first.keys.map((var l) {
-      return "`$l`";
-    }).toList();
-    List vals = keys.map((var l) {
-      return "?";
-    }).toList();
-    String sql = "INSERT OR REPLACE INTO `$table` ( ${keys.join(
-        ",")} ) VALUES ( ${vals.join(",")} );";
+  Future insertList(String table, List<Map<String, dynamic>> dataset) async {
+    List keys = dataset.first.keys.map((var l) => "`$l`").toList();
+    List vals = keys.map((var l) => "?").toList();
+    String sql = "INSERT OR REPLACE INTO `$table` ( ${keys.join(",")} ) VALUES ( ${vals.join(",")} );";
     return db.transaction((txn) async {
       var batch = db.batch();
-      for (Map data in datas) {
+      for (Map<String, dynamic> data in dataset) {
         batch.execute(sql, data.values.toList());
       }
       await txn.applyBatch(batch);
@@ -403,14 +395,9 @@ CREATE TABLE shops (
   }
 
   Future<int> updateOrInsert(String table, Map data) async {
-    List keys = data.keys.map((var l) {
-      return "`$l`";
-    }).toList();
-    List vals = keys.map((var l) {
-      return "?";
-    }).toList();
-    String sql = "INSERT OR REPLACE INTO `$table` ( ${keys.join(
-        ",")} ) VALUES ( ${vals.join(",")} );";
+    List keys = data.keys.map((var l) => "`$l`").toList();
+    List vals = keys.map((var l) => "?").toList();
+    String sql = "INSERT OR REPLACE INTO `$table` ( ${keys.join(",")} ) VALUES ( ${vals.join(",")} );";
     return db.rawInsert(sql, data.values.toList());
   }
 }
