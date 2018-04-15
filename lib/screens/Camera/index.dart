@@ -15,6 +15,8 @@ class _ScreenCameraState extends State<ScreenCamera> {
 
   List<CameraDescription> cameras = [];
 
+  int curCam = -1;
+
   @override
   void initState() {
     super.initState();
@@ -53,8 +55,6 @@ class _ScreenCameraState extends State<ScreenCamera> {
       ),
     );
   }
-
-  int curCam = -1;
 
   Future<Null> change() async {
     if (controller != null) {
