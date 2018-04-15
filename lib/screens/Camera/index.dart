@@ -49,7 +49,7 @@ class _ScreenCameraState extends State<ScreenCamera> {
           : new FloatingActionButton.extended(
         onPressed: controller.value.isStarted ? capture : null,
         icon: const Icon(Icons.camera),
-        label: new Text("Shot"),
+        label: new Text("Shoot"),
       ),
     );
   }
