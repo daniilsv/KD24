@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
-import 'package:kd24_shop_spy/classes/config.dart';
-import 'package:kd24_shop_spy/classes/user.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/routes.dart';
+import 'package:shop_spy/classes/config.dart';
+import 'package:shop_spy/classes/user.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/routes.dart';
 
 class ScreenSplash extends StatefulWidget {
   const ScreenSplash({Key key}) : super(key: key);

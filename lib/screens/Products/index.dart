@@ -5,16 +5,16 @@ import 'package:fluro/fluro.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kd24_shop_spy/classes/config.dart';
-import 'package:kd24_shop_spy/classes/product.dart';
-import 'package:kd24_shop_spy/classes/shop.dart';
-import 'package:kd24_shop_spy/components/Drawer/mainDrawer.dart';
-import 'package:kd24_shop_spy/components/Search/searchBar.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
-import 'package:kd24_shop_spy/services/send_data.dart';
-import 'package:kd24_shop_spy/services/utils.dart';
+import 'package:shop_spy/classes/config.dart';
+import 'package:shop_spy/classes/product.dart';
+import 'package:shop_spy/classes/shop.dart';
+import 'package:shop_spy/components/Drawer/mainDrawer.dart';
+import 'package:shop_spy/components/Search/searchBar.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/http_query.dart';
+import 'package:shop_spy/services/send_data.dart';
+import 'package:shop_spy/services/utils.dart';
 
 class ScreenProducts extends StatefulWidget {
   ScreenProducts({Key key, this.shopId, this.category}) : super(key: key);
@@ -208,7 +208,8 @@ class ScreenProductsState extends State<ScreenProducts> {
         ),
       ),
       appBar: searchBar.build(context),
-      floatingActionButton: _getFab(),
+      floatingActionButton: new FloatingActionButton(
+          child: const Icon(FontAwesomeIcons.plus), onPressed: () => openProductAdd()),
       body: new AsyncLoader(
         key: _productsLoaderState,
         initState: () async => await getProducts(),
@@ -219,8 +220,8 @@ class ScreenProductsState extends State<ScreenProducts> {
     );
   }
 
-  openProductAdd(String barcode) async {
-    var ret = await Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}/add/$barcode",
+  openProductAdd() async {
+    var ret = await Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}/add/$searchPhrase",
         transition: TransitionType.fadeIn);
     if (ret is Product) {
       Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
@@ -257,12 +258,5 @@ class ScreenProductsState extends State<ScreenProducts> {
     Navigator.pop(context);
     Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}",
         replace: true, transition: TransitionType.fadeIn);
-  }
-
-  _getFab() {
-    if (searchPhrase != null && searchPhrase.length >= 8) {
-      return new FloatingActionButton(
-          child: const Icon(FontAwesomeIcons.plus), onPressed: () => openProductAdd(searchPhrase));
-    }
   }
 }

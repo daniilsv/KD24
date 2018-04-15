@@ -2,33 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:kd24_shop_spy/classes/product.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
+import 'package:shop_spy/classes/product.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/services/http_query.dart';
 
 class SendData {
   static List<Product> toSend = [];
 
   static Future<String> sendProducts(BuildContext context) async {
     var db = new DataBase();
-    var rows = await db.filterNotNull("date_new").get("shop_products");
-    toSend = [];
-    for (Map product in rows) {
-      toSend.add(new Product.fromJson(product));
-    }
+    toSend = await db.filterNotNull("date_new").get<Product>("shop_products", callback: (_) => new Product.fromJson(_));
 
     return showModalBottomSheet<String>(
       context: context,
       builder: (BuildContext context) {
-        final Size screenSize = MediaQuery
-            .of(context)
-            .size;
-
         List<Widget> body = [];
 
         if (toSend.length != 0) {
           body.add(new Text("Вы точно хотите выгрузить обновление цен?"));
-          body.add(new Text("Будет выгружена информация о ценах ${toSend.length}товаров"));
+          body.add(new Text("Будет выгружена информация о ценах ${toSend.length} товаров"));
         } else
           body.add(new Text("Вы еще не уточнили ни одной цены."));
 

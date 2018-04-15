@@ -1,4 +1,4 @@
-package team.itis.kd24.kd24shopspy
+package team.itis.kd24.shopspy
 
 import android.os.Bundle
 

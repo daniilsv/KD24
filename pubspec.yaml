@@ -1,4 +1,4 @@
-name: kd24_shop_spy
+name: shop_spy
 
 dependencies:
   flutter:
@@ -6,14 +6,14 @@ dependencies:
 
   async_loader: ^0.1.1
 
-  cupertino_icons: ^0.1.0
   font_awesome_flutter: ^6.0.0
 
   sqflite: ^0.8.4
   path_provider: ^0.3.0
 
-  json_annotation: ^0.2.2 #https://github.com/dart-lang/json_serializable/blob/master/example/lib/example.dart
+#  json_annotation: ^0.2.3 #https://github.com/dart-lang/json_serializable/blob/master/example/lib/example.dart
   barcode_scan: ^0.0.3
+  camera: ^0.1.2
   fluro: ^1.1.0
   flutter_advanced_networkimage: ^0.2.2
 

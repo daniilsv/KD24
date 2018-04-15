@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:json_annotation/json_annotation.dart';
-import 'package:kd24_shop_spy/data/database.dart';
+import 'package:shop_spy/data/database.dart';
 
-@JsonSerializable()
 class UserLoginData {
   String username;
   String password;
@@ -19,7 +17,6 @@ class UserLoginData {
   }
 }
 
-@JsonSerializable()
 class User {
   String token;
   String tokenType;

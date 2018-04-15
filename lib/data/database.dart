@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:kd24_shop_spy/classes/config.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shop_spy/classes/config.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DataBase {
@@ -207,19 +207,19 @@ CREATE TABLE shops (
   }
 
   DataBase filterNotNull(field) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter(field + ' IS NOT NULL');
     return this;
   }
 
   DataBase filterIsNull(String field) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter(field + ' IS NULL');
     return this;
   }
 
   DataBase filterEqual(String field, value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     if (value == null) {
       this.filter(field + ' IS NULL');
     } else {
@@ -229,7 +229,7 @@ CREATE TABLE shops (
   }
 
   DataBase filterNotEqual(String field, String value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     if (value == null) {
       this.filter(field + ' IS NOT NULL');
     } else {
@@ -239,38 +239,38 @@ CREATE TABLE shops (
   }
 
   DataBase filterGt(String field, String value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter("$field > '$value'");
     return this;
   }
 
   DataBase filterLt(String field, String value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter("$field < '$value'");
     return this;
   }
 
   DataBase filterGtEqual(String field, String value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter("$field >= '$value'");
     return this;
   }
 
   DataBase filterLtEqual(String field, String value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter("$field <= '$value'");
     return this;
   }
 
   DataBase filterLike(String field, String value) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`$field`';
     this.filter("$field LIKE '$value'");
     return this;
   }
 
   DataBase filterBetween(String field, String start, String end) {
-    if (!field.contains("\.")) field = 'i.' + field;
-    this.filter("$field BETWEEN 'start' AND 'end'");
+    if (!field.contains("\.")) field = 'i.`$field`';
+    this.filter("$field BETWEEN '$start' AND '$end'");
     return this;
   }
 
@@ -374,6 +374,7 @@ CREATE TABLE shops (
     this.resetFilters();
     List keys = data.keys.map((var l) => "`$l`=?").toList();
     String sql = "UPDATE $table SET ${keys.join(",")} WHERE ${where.replaceAll("i\.", "")};";
+    print(sql);
     return db.rawUpdate(sql, data.values.toList());
   }
 

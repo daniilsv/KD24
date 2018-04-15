@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/services/utils.dart';
+import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/utils.dart';
 
 class DrawerMain extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  ListTile settingsWidget;
+  final ListTile settingsWidget;
 
-  ListTile sendWidget;
+  final ListTile sendWidget;
 
   DrawerMain({Key key, this.scaffoldKey, this.settingsWidget, this.sendWidget}) : super(key: key);
 

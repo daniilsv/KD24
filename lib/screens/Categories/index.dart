@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:async_loader/async_loader.dart';
 import "package:flutter/material.dart";
-import 'package:kd24_shop_spy/classes/shop.dart';
-import 'package:kd24_shop_spy/components/Drawer/mainDrawer.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
+import 'package:shop_spy/classes/shop.dart';
+import 'package:shop_spy/components/Drawer/mainDrawer.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/http_query.dart';
 
 class ScreenCategories extends StatefulWidget {
   ScreenCategories({Key key, this.shopId}) : super(key: key);

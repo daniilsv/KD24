@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:kd24_shop_spy/classes/user.dart';
 import 'package:path/path.dart';
+import 'package:shop_spy/classes/user.dart';
 
 class HttpQuery {
   static final String protocol = "http";

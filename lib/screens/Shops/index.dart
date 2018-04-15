@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:async_loader/async_loader.dart';
 import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kd24_shop_spy/classes/shop.dart';
-import 'package:kd24_shop_spy/components/Drawer/mainDrawer.dart';
-import 'package:kd24_shop_spy/components/Search/searchBar.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
-import 'package:kd24_shop_spy/services/send_data.dart';
-import 'package:kd24_shop_spy/services/utils.dart';
+import 'package:shop_spy/classes/shop.dart';
+import 'package:shop_spy/components/Drawer/mainDrawer.dart';
+import 'package:shop_spy/components/Search/searchBar.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/http_query.dart';
+import 'package:shop_spy/services/send_data.dart';
+import 'package:shop_spy/services/utils.dart';
 
 class ScreenShops extends StatefulWidget {
   const ScreenShops({Key key}) : super(key: key);
@@ -90,7 +90,7 @@ class ScreenShopsState extends State<ScreenShops> {
     }
     if ((data as List).length == 0) return false;
 
-    List<Map> _items = [];
+    List<Map<String, dynamic>> _items = [];
     for (Map shop in data) {
       _items.add({"id": shop['id'], "name": shop['name']});
     }
@@ -142,13 +142,13 @@ class ScreenShopsState extends State<ScreenShops> {
         sendWidget: new ListTile(
           leading: const Icon(FontAwesomeIcons.telegramPlane),
           title: new Text('Отправить изменения'),
-          onTap: () => openSendModal(),
+          onTap: () => openSendModal(true),
         ),
       ),
       floatingActionButton: new FloatingActionButton(
         backgroundColor: Colors.green,
         child: new Icon(FontAwesomeIcons.telegramPlane, color: Colors.white),
-        onPressed: () => openSendModal(),
+        onPressed: () => openSendModal(false),
       ),
       appBar: searchBar.build(context),
       body: new RefreshIndicator(
@@ -165,10 +165,10 @@ class ScreenShopsState extends State<ScreenShops> {
     );
   }
 
-  openSendModal() async {
+  openSendModal(bool pop) async {
     var ret = await SendData.sendProducts(context);
     if (ret != null && ret is String) {
-      Navigator.pop(context);
+      if (pop) Navigator.pop(context);
       _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(ret)));
     }
   }

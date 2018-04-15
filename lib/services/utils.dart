@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/routes.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/routes.dart';
 
 class Utils {
   static String twoDigits(int n) {
@@ -144,5 +144,36 @@ class Utils {
       return ((mltot * 100 / l1) * 100 + 140 - 8 * mc - l2 * 32 / l1).toInt();
     else
       return (0);
+  }
+
+  static bool calcEpCode(String code) {
+    var s1 = 0;
+    var s2 = 0;
+
+    if (!new RegExp("/^[0-9]+\$/").hasMatch(code)) {
+      return false;
+    }
+
+    if (code.length > 13) {
+      return false;
+    }
+
+    if (code.length == 12) {
+      code = '0' + code;
+    }
+
+    for (var i = 1; i < code.length; i += 2) {
+      s1 += int.parse(code[i - 1]);
+      s2 += int.parse(code[i]);
+    }
+
+    var control = s1 + s2 * 3;
+    control = 10 - control % 10;
+
+    if (control == int.parse(code[code.length - 1])) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

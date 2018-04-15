@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kd24_shop_spy/classes/config.dart';
-import 'package:kd24_shop_spy/classes/user.dart';
-import 'package:kd24_shop_spy/components/Buttons/roundedButton.dart';
-import 'package:kd24_shop_spy/theme/style.dart';
+import 'package:shop_spy/classes/config.dart';
+import 'package:shop_spy/classes/user.dart';
+import 'package:shop_spy/components/Buttons/roundedButton.dart';
+import 'package:shop_spy/theme/style.dart';
 
 class ScreenSettings extends StatefulWidget {
   const ScreenSettings({Key key}) : super(key: key);

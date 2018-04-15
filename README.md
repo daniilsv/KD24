@@ -1,6 +1,6 @@
-# kd24_shop_spy
+# shop_spy
 
-A new Flutter project.
+A new Flutter application.
 
 ## Getting Started
 

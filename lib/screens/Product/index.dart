@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kd24_shop_spy/classes/product.dart';
-import 'package:kd24_shop_spy/classes/shop.dart';
-import 'package:kd24_shop_spy/classes/user.dart';
-import 'package:kd24_shop_spy/components/Buttons/roundedButton.dart';
-import 'package:kd24_shop_spy/components/TextFields/inputField.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
-import 'package:kd24_shop_spy/services/utils.dart';
-import 'package:kd24_shop_spy/services/validations.dart';
-import 'package:kd24_shop_spy/theme/style.dart';
+import 'package:shop_spy/classes/product.dart';
+import 'package:shop_spy/classes/shop.dart';
+import 'package:shop_spy/components/Buttons/roundedButton.dart';
+import 'package:shop_spy/components/TextFields/inputField.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/services/http_query.dart';
+import 'package:shop_spy/services/utils.dart';
+import 'package:shop_spy/services/validations.dart';
+import 'package:shop_spy/theme/style.dart';
 
 class ScreenProduct extends StatefulWidget {
   ScreenProduct({Key key, this.shopId, this.category, this.id}) : super(key: key);
@@ -29,7 +28,6 @@ class ScreenProductState extends State<ScreenProduct> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Product product = new Product();
   ScrollController scrollController = new ScrollController();
-  UserLoginData user = new UserLoginData();
   bool autovalidate = false;
   Shop shop;
 
@@ -46,7 +44,7 @@ class ScreenProductState extends State<ScreenProduct> {
       form.save();
       product.dateNew = Utils.getDateTimeNow();
       var db = new DataBase();
-      await db.filterEqual("product_id", product.id).filterEqual("shop_id", product.shopId).updateFiltered(
+      await db.filterEqual("product_id", product.id).filterEqual("shop_id", widget.shopId).updateFiltered(
           "shop_products",
           {"is_sale_new": product.isSaleNew ? 1 : 0, "price_new": product.priceNew, "date_new": product.dateNew});
       Navigator.pop(context, product);

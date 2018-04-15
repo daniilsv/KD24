@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/screens/Splash/index.dart';
-import 'package:kd24_shop_spy/theme/style.dart';
+import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/screens/Splash/index.dart';
+import 'package:shop_spy/theme/style.dart';
 
 void main() {
   Routes.initRoutes();

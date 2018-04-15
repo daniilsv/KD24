@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kd24_shop_spy/classes/user.dart';
-import 'package:kd24_shop_spy/components/Buttons/roundedButton.dart';
-import 'package:kd24_shop_spy/components/TextFields/inputField.dart';
-import 'package:kd24_shop_spy/data/database.dart';
-import 'package:kd24_shop_spy/routes.dart';
-import 'package:kd24_shop_spy/services/http_query.dart';
-import 'package:kd24_shop_spy/services/validations.dart';
-import 'package:kd24_shop_spy/theme/style.dart';
+import 'package:shop_spy/classes/user.dart';
+import 'package:shop_spy/components/Buttons/roundedButton.dart';
+import 'package:shop_spy/components/TextFields/inputField.dart';
+import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/http_query.dart';
+import 'package:shop_spy/services/validations.dart';
+import 'package:shop_spy/theme/style.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({Key key}) : super(key: key);
