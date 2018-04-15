@@ -80,7 +80,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    bool isBarcode = Utils.calcEpCode(widget.phrase);
+    bool isBarcode = widget.phrase != null && Utils.calcEpCode(widget.phrase);
 
     Widget image = new InkWell(
       onTap: () async {
@@ -108,6 +108,12 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
       child: new Column(
         children: <Widget>[
           new Center(child: image),
+          new TextFormField(
+            initialValue: widget.phrase != null && !isBarcode ? widget.phrase : "",
+          ),
+          new TextFormField(
+            initialValue: widget.phrase != null && isBarcode ? widget.phrase : "",
+          )
         ],
       ),
     );
