@@ -4,26 +4,14 @@ import 'package:shop_spy/classes/user.dart';
 import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
 
-class ScreenSplash extends StatefulWidget {
-  const ScreenSplash({Key key}) : super(key: key);
-
-  @override
-  ScreenSplashState createState() => new ScreenSplashState();
-}
-
-class ScreenSplashState extends State<ScreenSplash> {
+class ScreenSplash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new Scaffold();
+    _startHome(context);
+    return new Center(child: new Text("Начинаем..."));
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _startHome();
-  }
-
-  void _startHome() async {
+  void _startHome(BuildContext context) async {
     var db = new DataBase();
     await db.open();
 
@@ -44,6 +32,6 @@ class ScreenSplashState extends State<ScreenSplash> {
       path = "/shops";
       User.localUser = user;
     }
-    Routes.navigateTo(this.context, path, replace: true);
+    Routes.navigateTo(context, path, replace: true);
   }
 }

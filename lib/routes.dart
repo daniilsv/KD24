@@ -56,8 +56,9 @@ class Routes {
   }
 
   static void backTo(BuildContext context, String path) {
+    if (!Navigator.of(context).canPop()) return;
     Navigator.of(context).popUntil((Route<dynamic> route) {
-      return route == null || route is ModalRoute && route.settings.name == path;
+      return route == null || route is ModalRoute && (route.settings.name == "/" || route.settings.name == path);
     });
   }
 }

@@ -72,7 +72,7 @@ class ScreenLoginState extends State<ScreenLogin> {
   _loadUser() async {
     var u = await UserLoginData.fromDataBase();
     setState(() {
-      user.username = u.username;
+      user = u;
     });
   }
 

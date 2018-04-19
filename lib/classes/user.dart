@@ -6,12 +6,12 @@ class UserLoginData {
   String username;
   String password;
 
-  UserLoginData({this.username = "", this.password = ""});
+  UserLoginData({this.username, this.password});
 
   static Future<UserLoginData> fromDataBase() async {
     DataBase db = new DataBase();
     return new UserLoginData(
-      username: await db.getField("config", "username", "value", filterField: "key") ?? "",
+      username: await db.getField("config", "username", "value", filterField: "key") ?? null,
       password: null,
     );
   }

@@ -97,7 +97,7 @@ CREATE TABLE shops (
   }
 
   DataBase groupBy(String field) {
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`' + field + '`';
     _groupBy = field;
     return this;
   }
@@ -106,7 +106,7 @@ CREATE TABLE shops (
     if (field.contains("(")) {
       return this;
     }
-    if (!field.contains("\.")) field = 'i.' + field;
+    if (!field.contains("\.")) field = 'i.`' + field + '`';
     _orderBy = field + ' ' + direction;
     return this;
   }
@@ -360,8 +360,12 @@ CREATE TABLE shops (
     String where = _where;
     this.resetFilters();
 
-    String sql = "DELETE FROM $table WHERE $where;";
+    String sql = "DELETE FROM $table WHERE ${where.replaceAll("i\.", "")};";
     return db.rawDelete(sql);
+  }
+
+  Future<int> truncate(table) {
+    return db.rawDelete("DELETE FROM $table;");
   }
 
   Future<int> update(String table, value, Map<String, dynamic> data, {String field = 'id'}) {

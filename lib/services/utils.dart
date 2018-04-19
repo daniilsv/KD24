@@ -33,9 +33,10 @@ class Utils {
 
   static logout(BuildContext context) async {
     var db = new DataBase();
-    db.delete("config", "`key`='token'");
-    db.delete("config", "`key`='token_type'");
-    db.delete("config", "`key`='token_expires'");
+    db.delete("config", "token", field: "key");
+    db.delete("config", "token_type", field: "key");
+    db.delete("config", "token_expires", field: "key");
+    db.delete("config", "username", field: "key");
     Routes.backTo(context, "/shops");
     Routes.navigateTo(context, "/login", replace: true);
   }
