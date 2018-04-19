@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
@@ -29,6 +31,27 @@ class Utils {
 
   static showInSnackBar(GlobalKey<ScaffoldState> key, String value) {
     key.currentState.showSnackBar(new SnackBar(content: new Text(value)));
+  }
+
+  static Stack buildBlurredContainer(Widget backgroundWidget,
+      {BoxConstraints constraints = const BoxConstraints.expand(), double sigma = 10.0}) {
+    return new Stack(
+      children: <Widget>[
+        new Container(constraints: constraints, child: backgroundWidget),
+        new ClipRect(
+          child: new BackdropFilter(
+              filter: new ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+              child: new Stack(
+                children: <Widget>[
+                  new Container(
+                    constraints: constraints,
+                    decoration: new BoxDecoration(color: Colors.grey.shade200.withOpacity(0.1)),
+                  )
+                ],
+              )),
+        )
+      ],
+    );
   }
 
   static logout(BuildContext context) async {

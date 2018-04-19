@@ -92,18 +92,29 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
         _imageFile = (await Routes.navigateTo(context, "/camera")) as File;
         setState(() {});
       },
-      child: _imageFile == null
-          ? new ConstrainedBox(
-              child: new Icon(FontAwesomeIcons.camera),
-              constraints: new BoxConstraints(maxWidth: screenSize.width * 0.8, maxHeight: screenSize.height / 3),
-            )
-          : new Image.file(
+      child: new Container(
+        child: _imageFile == null
+            ? new Icon(FontAwesomeIcons.camera)
+            : new Stack(
+          children: <Widget>[
+            Utils.buildBlurredContainer(new Image.file(
+              _imageFile,
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            )),
+            new Image.file(
               _imageFile,
               fit: BoxFit.contain,
               width: screenSize.width * 0.8,
               height: screenSize.height / 3,
               alignment: Alignment.center,
             ),
+          ],
+        ),
+        width: screenSize.width * 0.8,
+        height: screenSize.height / 3,
+        decoration: new BoxDecoration(color: Colors.grey.shade200.withOpacity(0.5)),
+      ),
     );
     Widget body = new Padding(
       padding: new EdgeInsets.all(8.0),

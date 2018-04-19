@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shop_spy/services/utils.dart';
 
 class ScreenCamera extends StatefulWidget {
   @override
@@ -41,24 +41,12 @@ class _ScreenCameraState extends State<ScreenCamera> {
       );
       columnChildren = new Stack(
         children: <Widget>[
-          new ConstrainedBox(constraints: const BoxConstraints.expand(), child: cameraWidget),
-          new ClipRect(
-            child: new BackdropFilter(
-                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: new Stack(
-                  children: <Widget>[
-                    new Container(
-                      constraints: const BoxConstraints.expand(),
-                      decoration: new BoxDecoration(color: Colors.grey.shade200.withOpacity(0.1)),
-                    ),
-                    new Center(
-                        child: new Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: cameraWidget,
-                        ))
-                  ],
-                )),
-          ),
+          Utils.buildBlurredContainer(cameraWidget),
+          new Center(
+              child: new Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: cameraWidget,
+              ))
         ],
       );
     }
@@ -95,6 +83,7 @@ class _ScreenCameraState extends State<ScreenCamera> {
       final String tempPath = tempDir.path;
       final String path = '$tempPath/picture${new DateTime.now().millisecondsSinceEpoch}.jpg';
       await controller.capture(path);
+      await controller?.dispose();
       if (!mounted) {
         return;
       }
