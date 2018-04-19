@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -34,17 +35,35 @@ class _ScreenCameraState extends State<ScreenCamera> {
     Widget columnChildren;
 
     if (controller == null || !controller.value.initialized) {} else if (controller.value.hasError) {} else {
-      columnChildren = new Column(
+      Widget cameraWidget = new AspectRatio(
+        aspectRatio: controller.value.aspectRatio,
+        child: new CameraPreview(controller),
+      );
+      columnChildren = new Stack(
         children: <Widget>[
-          new Expanded(
-              child: new AspectRatio(
-            aspectRatio: controller.value.aspectRatio,
-            child: new CameraPreview(controller),
-          ))
+          new ConstrainedBox(constraints: const BoxConstraints.expand(), child: cameraWidget),
+          new ClipRect(
+            child: new BackdropFilter(
+                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                child: new Stack(
+                  children: <Widget>[
+                    new Container(
+                      constraints: const BoxConstraints.expand(),
+                      decoration: new BoxDecoration(color: Colors.grey.shade200.withOpacity(0.1)),
+                    ),
+                    new Center(
+                        child: new Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: cameraWidget,
+                        ))
+                  ],
+                )),
+          ),
         ],
       );
     }
     return new Scaffold(
+      backgroundColor: Colors.black45,
       body: columnChildren,
       floatingActionButton: (controller == null)
           ? null
