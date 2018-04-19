@@ -6,6 +6,13 @@ class Validations {
     return null;
   }
 
+  static String validateVolume(String value) {
+    if (value.isEmpty) return 'Volume is required.';
+    final RegExp nameExp = new RegExp(r'^[0-9\.]+$');
+    if (!nameExp.hasMatch(value)) return 'Please enter only digits characters.';
+    return null;
+  }
+
   static String validateUsername(String value) {
     if (value.isEmpty) return 'Login is required.';
     final RegExp nameExp = new RegExp(r'^[A-za-z ]+$');

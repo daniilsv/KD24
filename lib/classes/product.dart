@@ -25,7 +25,7 @@ class Product {
     this.category = "",
     this.brand,
     this.barcode = "",
-    this.volume = "Штука",
+    this.volume,
     this.volumeValue = "1",
     this.image = "",
     this.price = 0.0,
