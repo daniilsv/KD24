@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/services/database.dart';
 
 class UserLoginData {
   String username;

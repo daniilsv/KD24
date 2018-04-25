@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,8 +7,9 @@ import 'package:shop_spy/classes/product.dart';
 import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
 import 'package:shop_spy/components/TextFields/inputField.dart';
-import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/database.dart';
+import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/utils.dart';
 import 'package:shop_spy/services/validations.dart';
 import 'package:shop_spy/theme/style.dart';
@@ -31,17 +33,37 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
   Shop shop;
   Product product = new Product();
 
-  void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
-  }
-
   void _handleSubmitted() async {
     FormState form = formKey.currentState;
     if (!form.validate()) {
       autovalidate = true;
-      showInSnackBar('Please fix the errors in red before submitting.');
+      Utils.showInSnackBar(_scaffoldKey, 'Please fix the errors in red before submitting.');
     } else {
       form.save();
+
+//TODO:Image upload
+//      if (_imageFile != null) {
+//        List<int> imageBytes = _imageFile.readAsBytesSync();
+//        var ret = await HttpQuery.sendData("ImagesUpload", params: imageBytes, query: {
+//          "name": "${product.barcode}.${_imageFile.path
+//              .split(".")
+//              .last}"
+//        });
+//        print(ret);
+//      }
+
+      var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct", params: json.encode([{
+        "barCode": product.barcode,
+        "name": product.name,
+        "price0": product.price,
+        "price1": product.priceNew,
+        "date": Utils.getDateTimeNow(),
+        "isWeight": product.isWeight,
+        "isPackage": product.isPackage,
+        "weightPack": product.volumeValue
+      }
+      ]));
+      print(ret);
     }
   }
 
@@ -101,63 +123,126 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
 
     Widget volume = new Row(
       children: <Widget>[
-        const Text("Емкость"),
-        new Padding(
-          padding: new EdgeInsets.symmetric(horizontal: 20.0),
-          child: new DropdownButton(
-            onChanged: (String value) {
-              setState(() {
-                product.volume = value;
-              });
-            },
-            value: product.volume ?? "Кол-во",
-            items: [
-              new DropdownMenuItem<String>(
-                child: const Text("Вес"),
-                value: "Вес",
-              ),
-              new DropdownMenuItem<String>(
-                child: const Text("Объем"),
-                value: "Объем",
-              ),
-              new DropdownMenuItem<String>(
-                child: const Text("Кол-во"),
-                value: "Кол-во",
-              ),
-            ],
-          ),
+//        const Text("Емкость"),
+//        new Padding(
+//          padding: new EdgeInsets.symmetric(horizontal: 20.0),
+//          child: new DropdownButton(
+//            onChanged: (String value) {
+//              setState(() {
+//                product.volume = value;
+//              });
+//            },
+//            value: product.volume ?? "Кол-во",
+//            items: [
+//              new DropdownMenuItem<String>(
+//                child: const Text("Вес"),
+//                value: "Вес",
+//              ),
+//              new DropdownMenuItem<String>(
+//                child: const Text("Объем"),
+//                value: "Объем",
+//              ),
+//              new DropdownMenuItem<String>(
+//                child: const Text("Кол-во"),
+//                value: "Кол-во",
+//              ),
+//            ],
+//          ),
+//        ),
+//        new Padding(
+//          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//          child: const Text("Укажите"),
+//        ),
+//        new Expanded(
+//          child: new TextFormField(
+//            style: textStyle,
+//            keyboardType: TextInputType.number,
+//            validator: Validations.validateVolume,
+//            onSaved: (String value) {
+//              product.volumeValue = value;
+//            },
+//            decoration: new InputDecoration(
+//              hintText: product.volume ?? "Кол-во",
+//              hintStyle: hintStyle,
+//            ),
+//          ),
+//        ),
+//        new Text(product.volumeText),
+        new InkWell(
+          child: const Text("Весовой"),
+          onTap: () {
+            setState(() {
+              product.isWeight = !product.isWeight;
+            });
+          },
+        ),
+        new Checkbox(
+          onChanged: (bool value) {
+            setState(() {
+              product.isWeight = value;
+            });
+          },
+          activeColor: Colors.orangeAccent,
+          value: product.isWeight,
+        ),
+        new InkWell(
+          child: const Text("Упакованный"),
+          onTap: () {
+            setState(() {
+              product.isPackage = !product.isPackage;
+            });
+          },
+        ),
+        new Checkbox(
+          onChanged: (bool value) {
+            setState(() {
+              product.isPackage = value;
+            });
+          },
+          activeColor: Colors.orangeAccent,
+          value: product.isPackage,
         ),
         new Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: const Text("Укажите"),
+          child: const Text("Вес"),
         ),
+
         new Expanded(
           child: new TextFormField(
             style: textStyle,
             keyboardType: TextInputType.number,
-            validator: Validations.validateVolume,
-            onSaved: (String value) {},
+            validator: Validations.validateVolumeValue,
+            onSaved: (String value) {
+              product.volumeValue = value;
+            },
             decoration: new InputDecoration(
-              hintText: product.volume ?? "Кол-во",
+              hintText: "Кг",
               hintStyle: hintStyle,
             ),
           ),
         ),
-        new Text(product.volumeText),
       ],
     );
 
     Widget salePrice = new Row(
       children: <Widget>[
-        const Text("Акционная цена"),
+        new InkWell(
+          child: const Text("Акционная цена"),
+          onTap: () {
+            setState(() {
+              product.isSaleNew = !product.isSaleNew;
+            });
+          },
+        ),
         new Checkbox(
-            onChanged: (bool value) {
-              setState(() {
-                product.isSaleNew = value;
-              });
-            },
-            activeColor: Colors.orangeAccent,
-            value: product.isSaleNew)
+          onChanged: (bool value) {
+            setState(() {
+              product.isSaleNew = value;
+            });
+          },
+          activeColor: Colors.orangeAccent,
+          value: product.isSaleNew,
+        )
       ],
     );
 
@@ -168,7 +253,9 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
             style: textStyle,
             keyboardType: TextInputType.number,
             validator: Validations.validatePrice,
-            onSaved: (String value) {},
+            onSaved: (String value) {
+              product.priceNew = double.parse(value);
+            },
             decoration: new InputDecoration(
               hintText: "Sale price",
               hintStyle: hintStyle,
@@ -191,10 +278,13 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
               textStyle: textStyle,
               textFieldColor: textFieldColor,
               hintStyle: hintStyle,
+              validateFunction: Validations.validateTitle,
               icon: FontAwesomeIcons.font,
               iconColor: Colors.black,
               bottomMargin: 20.0,
-              onSaved: (String value) {}),
+              onSaved: (String value) {
+                product.name = value;
+              }),
           new InputField(
               hintText: "Штрих-код",
               initialText: widget.phrase != null && isBarcode ? widget.phrase : "",
@@ -203,10 +293,13 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
               textStyle: textStyle,
               hintStyle: hintStyle,
               textFieldColor: textFieldColor,
+              validateFunction: Validations.validateBarcode,
               icon: FontAwesomeIcons.barcode,
               iconColor: Colors.black,
               bottomMargin: 20.0,
-              onSaved: (String value) {}),
+              onSaved: (String value) {
+                product.barcode = value;
+              }),
           new Divider(color: Colors.black),
           volume,
           new InputField(
@@ -221,7 +314,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
             iconColor: Colors.black,
             bottomMargin: 20.0,
             onSaved: (String price) {
-              product.priceNew = double.parse(price);
+              product.price = double.parse(price);
             },
           ),
           salePrice,

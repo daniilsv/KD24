@@ -1,3 +1,5 @@
+import 'package:shop_spy/services/utils.dart';
+
 class Validations {
   static String validatePrice(String value) {
     if (value.isEmpty) return 'Price is required.';
@@ -6,7 +8,7 @@ class Validations {
     return null;
   }
 
-  static String validateVolume(String value) {
+  static String validateVolumeValue(String value) {
     if (value.isEmpty) return 'Volume is required.';
     final RegExp nameExp = new RegExp(r'^[0-9\.]+$');
     if (!nameExp.hasMatch(value)) return 'Please enter only digits characters.';
@@ -22,6 +24,15 @@ class Validations {
 
   static String validatePassword(String value) {
     if (value.isEmpty) return 'Please choose a password.';
+    return null;
+  }
+
+  static String validateBarcode(String value) {
+    return !Utils.calcEpCode(value) ? "Invalid barcode" : null;
+  }
+
+  static String validateTitle(String value) {
+    if (value.isEmpty) return 'Title is required.';
     return null;
   }
 }

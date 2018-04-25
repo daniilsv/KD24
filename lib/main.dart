@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shop_spy/classes/config.dart';
 import 'package:shop_spy/classes/user.dart';
-import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
 import 'package:shop_spy/screens/Login/index.dart';
 import 'package:shop_spy/screens/Shops/index.dart';
+import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/theme/style.dart';
 
 void main() {
@@ -14,7 +14,9 @@ void main() {
 
 void startHome() async {
   var db = new DataBase();
-  await db.open();
+  if (!await db.open()) {
+    await db.open();
+  }
 
   (await db.get<Map>("config")).forEach((var row) {
     print(row);

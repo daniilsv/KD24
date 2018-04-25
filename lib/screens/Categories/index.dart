@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:async_loader/async_loader.dart';
 import "package:flutter/material.dart";
 import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Drawer/mainDrawer.dart';
-import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 
 class ScreenCategories extends StatefulWidget {
@@ -24,42 +23,17 @@ class ScreenCategoriesState extends State<ScreenCategories> {
 
   Shop shop = new Shop();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  var _items = [];
 
   getCategories() async {
-    var _items = [];
     if (_items.length == 0) {
       _items = await _loadCategoriesFromDatabase();
       if (_items.length == 0) {
-        bool status = await _handleRefresh();
+        bool status = await _handleRefresh<bool>();
         if (status) _items = await _loadCategoriesFromDatabase();
       }
     }
-
-    return new ListView.builder(
-      padding: kMaterialListPadding,
-      itemCount: _items.length,
-      itemBuilder: (BuildContext context, int index) {
-        return new Row(children: [
-          new Expanded(
-              child: new Card(
-                child: new MaterialButton(
-                  height: 50.0,
-                  child: new ListTile(
-                    title: new Text(
-                      _items[index],
-                      style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  onPressed: () =>
-                      Routes.navigateTo(
-                          context,
-                          "/shop/${widget.shopId}/"
-                              "${_items[index]}"),
-                ),
-          ))
-        ]);
-      },
-    );
+    setState(() {});
   }
 
   Future<List> _loadCategoriesFromDatabase() async {
@@ -75,16 +49,31 @@ class ScreenCategoriesState extends State<ScreenCategories> {
     return _categories;
   }
 
-  Future<bool> _handleRefresh() async {
+  @override
+  void initState() {
+    super.initState();
+    getAppBarTitle();
+    getCategories();
+  }
+
+  Future<T> _handleRefresh<T>([bool tIsNull = false]) async {
     var data = await HttpQuery
         .executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
 
     if (data is Map && data.containsKey("error")) {
       showInSnackBar(data["error"]);
-      return false;
+      if (tIsNull)
+        return null;
+      else
+        return false as T;
     }
 
-    if ((data as List).length == 0) return false;
+    if ((data as List).length == 0) {
+      if (tIsNull)
+        return null;
+      else
+        return false as T;
+    }
 
     List<Map<String, dynamic>> _products = [];
     List<Map<String, dynamic>> _shopPrice = [];
@@ -118,41 +107,59 @@ class ScreenCategoriesState extends State<ScreenCategories> {
     var db = new DataBase();
     await db.insertList("products", _products);
     await db.insertList("shop_products", _shopPrice);
-    return true;
+    if (tIsNull)
+      return null;
+    else
+      return true as T;
   }
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<AsyncLoaderState> _productsLoaderState = new GlobalKey<AsyncLoaderState>();
 
-  Future _getAppBarTitle() async {
+  getAppBarTitle() async {
     var db = new DataBase();
     shop = await db.getItemById("shops", widget.shopId, callback: (Map shop) => new Shop.fromJson(shop));
-    return new Text(shop.name, style: new TextStyle(color: Colors.white));
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget title = const Text("");
+    if (shop != null) title = new Text(shop.name, style: new TextStyle(color: Colors.white));
     return new Scaffold(
       key: _scaffoldKey,
       drawer: new DrawerMain(),
       appBar: new AppBar(
-        title: new AsyncLoader(
-          initState: () async => await _getAppBarTitle(),
-          renderLoad: () => const Center(),
-          renderSuccess: ({data}) => data,
-        ),
+        title: title,
         backgroundColor: Colors.orange,
         centerTitle: true,
       ),
       body: new RefreshIndicator(
         key: _refreshIndicatorKey,
-        onRefresh: () => _handleRefresh(),
-        child: new AsyncLoader(
-          key: _productsLoaderState,
-          initState: () async => await getCategories(),
-          renderLoad: () => new Center(child: new CircularProgressIndicator()),
-          renderError: ([error]) => new Text('Странно.. Категории не загружаются.'),
-          renderSuccess: ({data}) => data,
+        onRefresh: () => _handleRefresh<Null>(true),
+        child: new ListView.builder(
+          padding: kMaterialListPadding,
+          itemCount: _items.length,
+          itemBuilder: (BuildContext context, int index) {
+            return new Row(children: [
+              new Expanded(
+                  child: new Card(
+                    child: new MaterialButton(
+                      height: 50.0,
+                      child: new ListTile(
+                        title: new Text(
+                          _items[index],
+                          style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      onPressed: () =>
+                          Routes.navigateTo(
+                              context,
+                              "/shop/${widget.shopId}/"
+                                  "${_items[index]}"),
+                    ),
+                  ))
+            ]);
+          },
         ),
       ),
     );

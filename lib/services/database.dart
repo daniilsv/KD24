@@ -9,9 +9,10 @@ import 'package:sqflite/sqflite.dart';
 class DataBase {
   static Database db;
 
-  Future open() async {
+  Future<bool> open() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = context.join(documentsDirectory.path, Config.dbName + ".db");
+    var needRecreate = false;
     db = await openDatabase(path, version: Config.dbVersion, onCreate: (Database db, int version) {
       db.execute('''
 CREATE TABLE config ( 
@@ -47,7 +48,15 @@ CREATE TABLE shops (
    CONSTRAINT index_pid_shopid UNIQUE (`product_id`, `shop_id`)
 );
 ''');
-    }, onUpgrade: (Database db, int versionOld, int versionNew) {});
+    }, onUpgrade: (Database db, int versionOld, int versionNew) async {
+      if (versionOld < 5) needRecreate = true;
+    });
+    if (needRecreate) {
+      await close();
+      await deleteDatabase(path);
+      return false;
+    }
+    return true;
   }
 
   Future close() async => db.close();

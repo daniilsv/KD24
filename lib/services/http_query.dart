@@ -53,7 +53,7 @@ class HttpQuery {
     }
   }
 
-  static Future<dynamic> sendData(String action, {dynamic params}) async {
+  static Future<dynamic> sendData(String action, {Map<String, dynamic> query, dynamic params}) async {
     if (params == null) params = {};
     action = "api/" + action;
 
@@ -62,11 +62,11 @@ class HttpQuery {
       _headers["Authorization"] = User.localUser.tokenType + " " + User.localUser.token;
     }
     var client = new http.Client();
-    http.Response response = await client.post(hrefTo(action), headers: _headers, body: params);
+    http.Response response = await client.post(hrefTo(action, query: query), headers: _headers, body: params);
 
     try {
       var ret = json.decode(response.body);
-
+      print(ret);
       if (ret is Map) {
         if (ret.containsKey("Message")) return {"error": ret["Message"]};
 

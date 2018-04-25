@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/services/database.dart';
 
 class Config {
   static final String dbName = "shop_spy";
-  static final int dbVersion = 1;
+  static final int dbVersion = 5;
 
   static bool moveDownDone;
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shop_spy/classes/product.dart';
-import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 
 class SendData {
@@ -59,18 +59,22 @@ class SendData {
     toSend.forEach((Product product) {
       data.add({
         "retailerId": product.shopId,
-        "productId": product.originalId,
+        "productId": product.id,
         "typeId": product.isSaleNew ? 1 : 0,
         "price1": product.priceNew,
         "date": product.dateNew
       });
     });
+    print(data);
     var ret = await HttpQuery.sendData("Prices/sendPriceArray", params: json.encode(data));
 
     if ((ret as Map).containsKey("success")) {
       var db = new DataBase();
       for (Product product in toSend) {
-        await db.update("products", "`id`=${product.id}", {"price": product.priceNew, "price_new_date": null});
+        await db
+            .filterEqual("product_id", product.id)
+            .filterEqual("shop_id", product.shopId)
+            .updateFiltered("shop_products", {"price": product.priceNew, "date": product.dateNew, "date_new": null});
       }
       return "${toSend.length} обновлений цен успешно выгружены";
     } else {

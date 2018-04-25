@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:shop_spy/data/database.dart';
 import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/services/database.dart';
 
 class Utils {
   static String twoDigits(int n) {

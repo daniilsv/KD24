@@ -1,6 +1,5 @@
 class Product {
   int id;
-  int originalId;
   int shopId;
   String category;
   String name;
@@ -16,14 +15,16 @@ class Product {
   String dateNew;
   bool isSaleNew = false;
 
+  bool isWeight = false;
+  bool isPackage = false;
+
   int order;
 
   Product({this.id,
-    this.originalId,
     this.shopId,
     this.name = "",
     this.category = "",
-    this.brand,
+    this.brand, ////////
     this.barcode = "",
     this.volume,
     this.volumeValue = "1",
@@ -50,7 +51,7 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) =>
       new Product(
-        id: json['id'],
+        id: json['id'] ?? json['product_id'],
         shopId: json['shop_id'],
         name: json['name'] as String,
         category: json['category'] as String,

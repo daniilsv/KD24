@@ -6,17 +6,16 @@ import 'package:shop_spy/classes/product.dart';
 import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
 import 'package:shop_spy/components/TextFields/inputField.dart';
-import 'package:shop_spy/data/database.dart';
+import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/utils.dart';
 import 'package:shop_spy/services/validations.dart';
 import 'package:shop_spy/theme/style.dart';
 
 class ScreenProduct extends StatefulWidget {
-  ScreenProduct({Key key, this.shopId, this.category, this.id}) : super(key: key);
+  ScreenProduct({Key key, this.shopId, this.id}) : super(key: key);
 
   final int shopId;
-  final String category;
   final int id;
 
   @override
@@ -53,12 +52,14 @@ class ScreenProductState extends State<ScreenProduct> {
 
   getData() async {
     var db = new DataBase();
-    Map _shop = await db.getItemById("shops", widget.shopId);
-    Map _product = await db.getItemById("products", widget.id);
-    setState(() {
-      shop = new Shop.fromJson(_shop);
-      product = new Product.fromJson(_product);
-    });
+    shop = await db.getItemById<Shop>("shops", widget.shopId, callback: (_) => new Shop.fromJson(_));
+    product = await db
+        .select("p.*")
+        .joinLeft("products", "p", "p.id=i.product_id")
+        .filterEqual("i.shop_id", widget.shopId)
+        .filterEqual("i.product_id", widget.id)
+        .getItem<Product>("shop_products", callback: (_) => new Product.fromJson(_));
+    setState(() {});
   }
 
   @override
@@ -67,27 +68,6 @@ class ScreenProductState extends State<ScreenProduct> {
     getData();
   }
 
-/*new DropdownButton(
-                      onChanged: (String value) {
-                        setState(() {
-                          product.volume = value;
-                        });
-                      },
-                      value: product.volume,
-                      items: [
-                        new DropdownMenuItem<String>(
-                          child: const Text("кг."),
-                          value: "Вес",
-                        ),
-                        new DropdownMenuItem<String>(
-                          child: const Text("л."),
-                          value: "Объем",
-                        ),
-                        new DropdownMenuItem<String>(
-                          child: const Text("шт."),
-                          value: "Кол-во",
-                        ),
-                      ]),*/
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -180,18 +160,17 @@ class ScreenProductState extends State<ScreenProduct> {
             ),
             product.priceNew != null
                 ? product.dateNew == null
-                ? new Text("Выгружено: ${product.priceNew}", style: new TextStyle(color: Colors.green))
-                : new Text("Не выгружено", style: new TextStyle(color: Colors.red))
+                ? new Text("Выгружено: ${product.price}", style: new TextStyle(color: Colors.green))
+                : new Text("Не выгружено: ${product.priceNew}", style: new TextStyle(color: Colors.red))
                 : const Text("")
           ],
         ),
       );
-
     Widget title = new Center(child: new CircularProgressIndicator());
     if (shop != null) {
       title = new ListTile(
         title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
-        subtitle: new Text(widget.category, style: new TextStyle(color: Colors.white)),
+        subtitle: new Text(product.category, style: new TextStyle(color: Colors.white)),
       );
     }
     return new Scaffold(

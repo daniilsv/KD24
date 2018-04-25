@@ -36,10 +36,9 @@ class Routes {
           return new ScreenProducts(shopId: int.parse(params["shop_id"][0]), category: params["category"][0]);
         }));
 
-    _router.define("/shop/:shop_id/:category/:id",
+    _router.define("/product/:shop_id/:id",
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenProduct(
-              shopId: int.parse(params["shop_id"][0]), category: params["category"][0], id: int.parse(params["id"][0]));
+          return new ScreenProduct(shopId: int.parse(params["shop_id"][0]), id: int.parse(params["id"][0]));
         }));
 
     _router.define("/shop/:shop_id/:category/add/:phrase",
