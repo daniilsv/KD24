@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image/image.dart' as img;
 import 'package:shop_spy/classes/product.dart';
 import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
@@ -15,10 +18,9 @@ import 'package:shop_spy/services/validations.dart';
 import 'package:shop_spy/theme/style.dart';
 
 class ScreenProductAdd extends StatefulWidget {
-  ScreenProductAdd({Key key, this.shopId, this.category, this.phrase}) : super(key: key);
+  ScreenProductAdd({Key key, this.shopId, this.phrase}) : super(key: key);
 
   final int shopId;
-  final String category;
   final String phrase;
 
   @override
@@ -33,6 +35,8 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
   Shop shop;
   Product product = new Product();
 
+  TextEditingController barcodeController;
+
   void _handleSubmitted() async {
     FormState form = formKey.currentState;
     if (!form.validate()) {
@@ -42,27 +46,31 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
       form.save();
 
 //TODO:Image upload
-//      if (_imageFile != null) {
-//        List<int> imageBytes = _imageFile.readAsBytesSync();
-//        var ret = await HttpQuery.sendData("ImagesUpload", params: imageBytes, query: {
-//          "name": "${product.barcode}.${_imageFile.path
-//              .split(".")
-//              .last}"
-//        });
-//        print(ret);
-//      }
-
-      var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct", params: json.encode([{
-        "barCode": product.barcode,
-        "name": product.name,
-        "price0": product.price,
-        "price1": product.priceNew,
-        "date": Utils.getDateTimeNow(),
-        "isWeight": product.isWeight,
-        "isPackage": product.isPackage,
-        "weightPack": product.volumeValue
+      if (_imageFile != null) {
+        img.Image image = img.decodeImage(_imageFile.readAsBytesSync());
+        img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
+        List<int> imageBytes = thumbnail.getBytes();
+        var ret = await HttpQuery.sendData("ImagesUpload", params: imageBytes, query: {
+          "name": "${product.barcode}.${_imageFile.path
+              .split(".")
+              .last}"
+        });
+        print(ret);
       }
-      ]));
+
+      var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct",
+          params: json.encode([
+            {
+              "barCode": product.barcode,
+              "name": product.name,
+              "price0": product.price,
+              "price1": product.priceNew,
+              "date": Utils.getDateTimeNow(),
+              "isWeight": product.isWeight,
+              "isPackage": product.isPackage,
+              "weightPack": product.volumeValue
+            }
+          ]));
       print(ret);
     }
   }
@@ -79,14 +87,16 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
   void initState() {
     super.initState();
     getData();
+    phraseIsBarcode = widget.phrase != null && Utils.calcEpCode(widget.phrase);
+    barcodeController = new TextEditingController(text: widget.phrase != null && phraseIsBarcode ? widget.phrase : "");
   }
 
+  bool phraseIsBarcode;
   File _imageFile;
 
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-    bool isBarcode = widget.phrase != null && Utils.calcEpCode(widget.phrase);
 
     Widget image = new InkWell(
       onTap: () async {
@@ -264,7 +274,6 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
         ),
       );
     }
-
     Widget body = new Padding(
       padding: new EdgeInsets.all(8.0),
       child: new Column(
@@ -272,7 +281,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
           new Center(child: image),
           new InputField(
               hintText: "Наименование",
-              initialText: widget.phrase != null && !isBarcode ? widget.phrase : "",
+              initialText: "",
               obscureText: false,
               textInputType: TextInputType.text,
               textStyle: textStyle,
@@ -285,21 +294,31 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
               onSaved: (String value) {
                 product.name = value;
               }),
-          new InputField(
-              hintText: "Штрих-код",
-              initialText: widget.phrase != null && isBarcode ? widget.phrase : "",
-              obscureText: false,
-              textInputType: TextInputType.text,
-              textStyle: textStyle,
-              hintStyle: hintStyle,
-              textFieldColor: textFieldColor,
-              validateFunction: Validations.validateBarcode,
-              icon: FontAwesomeIcons.barcode,
-              iconColor: Colors.black,
-              bottomMargin: 20.0,
-              onSaved: (String value) {
-                product.barcode = value;
-              }),
+          new DecoratedBox(
+            decoration:
+            new BoxDecoration(borderRadius: new BorderRadius.all(new Radius.circular(30.0)), color: textFieldColor),
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  child: new TextFormField(
+                    style: textStyle,
+                    keyboardType: TextInputType.text,
+                    validator: Validations.validateBarcode,
+                    controller: barcodeController,
+                    onSaved: (String value) {
+                      product.barcode = value;
+                    },
+                    decoration: new InputDecoration(
+                      hintText: "Штрих-код",
+                      hintStyle: hintStyle,
+                      icon: new Icon(FontAwesomeIcons.barcode),
+                    ),
+                  ),
+                ),
+                new IconButton(icon: new Icon(Icons.photo_camera), onPressed: () => scan())
+              ],
+            ),
+          ),
           new Divider(color: Colors.black),
           volume,
           new InputField(
@@ -335,10 +354,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
 
     Widget title = new Center(child: new CircularProgressIndicator());
     if (shop != null) {
-      title = new ListTile(
-        title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
-        subtitle: new Text(widget.category, style: new TextStyle(color: Colors.white)),
-      );
+      title = new Text(shop.name, style: new TextStyle(color: Colors.white));
     }
     return new Scaffold(
       key: _scaffoldKey,
@@ -365,5 +381,17 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
         ),
       ),
     );
+  }
+
+  void scan() {
+    try {
+      BarcodeScanner.scan().then((String _) {
+        setState(() {
+          barcodeController.text = _;
+        });
+      });
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {} else {}
+    } on FormatException {} catch (e) {}
   }
 }

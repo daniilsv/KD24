@@ -223,8 +223,8 @@ class ScreenProductsState extends State<ScreenProducts> {
         return;
       }
     }
-    var ret = await Routes.navigateTo(context, "/shop/${widget.shopId}/${widget.category}/add/$searchPhrase",
-        transition: TransitionType.fadeIn);
+    var ret =
+    await Routes.navigateTo(context, "/shop/${widget.shopId}/add/$searchPhrase", transition: TransitionType.fadeIn);
     if (ret is Product) {
       getProducts();
     }

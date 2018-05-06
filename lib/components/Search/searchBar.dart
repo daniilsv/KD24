@@ -178,13 +178,13 @@ class SearchBar {
       ),
       actions: <Widget>[
         _clearActive || !needBarCodeCamera
-            ? new Text("")
+            ? const Text("")
             : new IconButton(
             icon: new Icon(Icons.photo_camera, color: buttonColor),
             disabledColor: buttonDisabledColor,
-            onPressed: () => _scan()),
+            onPressed: () => scan()),
         !showClearButton
-            ? new Text("")
+            ? const Text("")
             : new IconButton(
             icon: new Icon(Icons.clear, color: _clearActive ? buttonColor : buttonDisabledColor),
             disabledColor: buttonDisabledColor,
@@ -213,7 +213,7 @@ class SearchBar {
     return _isSearching ? buildSearchBar(context) : buildAppBar(context);
   }
 
-  Future _scan() async {
+  Future scan() async {
     try {
       String barcode = await BarcodeScanner.scan();
       setState(() {

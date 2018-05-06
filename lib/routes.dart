@@ -41,11 +41,11 @@ class Routes {
           return new ScreenProduct(shopId: int.parse(params["shop_id"][0]), id: int.parse(params["id"][0]));
         }));
 
-    _router.define("/shop/:shop_id/:category/add/:phrase",
+    _router.define("/shop/:shop_id/add/:phrase",
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
           String phrase = params["phrase"][0] != "null" ? params["phrase"][0] : null;
           return new ScreenProductAdd(
-              shopId: int.parse(params["shop_id"][0]), category: params["category"][0], phrase: phrase);
+              shopId: int.parse(params["shop_id"][0]), phrase: phrase);
         }));
   }
 

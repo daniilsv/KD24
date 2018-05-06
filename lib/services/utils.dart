@@ -174,7 +174,7 @@ class Utils {
     var s1 = 0;
     var s2 = 0;
 
-    if (!new RegExp("^[0-9]+").hasMatch(code)) {
+    if (code == null || !new RegExp("^[0-9]+").hasMatch(code)) {
       return false;
     }
 
