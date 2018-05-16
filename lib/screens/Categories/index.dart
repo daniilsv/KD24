@@ -25,10 +25,6 @@ class ScreenCategories extends StatefulWidget {
 }
 
 class ScreenCategoriesState extends State<ScreenCategories> {
-  void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
-  }
-
   Shop shop = new Shop();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var _items = [];
@@ -145,7 +141,7 @@ class ScreenCategoriesState extends State<ScreenCategories> {
         .executeJsonQuery("Products/GetTodayCheckProduct", params: {"retailerId": widget.shopId.toString()});
 
     if (data is Map && data.containsKey("error")) {
-      showInSnackBar(data["error"]);
+      Utils.showInSnackBar(_scaffoldKey, data["error"]);
       if (tIsNull)
         return null;
       else
@@ -331,7 +327,9 @@ class ScreenCategoriesState extends State<ScreenCategories> {
         return;
       }
       var res = await HttpQuery.executeJsonQuery("Products/GetProductCheck", params: {"barCode": searchPhrase});
-      if (res is Map) {
+      if (res is Map && res.containsKey("error")) {
+        Utils.showInSnackBar(_scaffoldKey, res["error"]);
+      } else if (!res.containsKey("error")) {
         await db.updateOrInsert("products", {
           "id": res['id'],
           "category": res['category'],
@@ -347,10 +345,10 @@ class ScreenCategoriesState extends State<ScreenCategories> {
         return;
       }
     }
-    var ret = await Routes.navigateTo(context, "/shop/${widget.shopId}/add/$searchPhrase",
-        transition: TransitionType.fadeIn);
-    if (ret is Product) {
-      getProducts();
+    var ret =
+    await Routes.navigateTo(context, "/shop/${widget.shopId}/add/$searchPhrase", transition: TransitionType.fadeIn);
+    if (ret is num) {
+      Utils.showInSnackBar(_scaffoldKey, "Благодарим за добавление информации о товаре");
     }
   }
 

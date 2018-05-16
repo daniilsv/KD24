@@ -139,8 +139,18 @@ class ScreenProductsState extends State<ScreenProducts> {
         ),
       ),
       appBar: searchBar.build(context),
-      floatingActionButton:
-      new FloatingActionButton(child: const Icon(FontAwesomeIcons.plus), onPressed: () => openProductAdd()),
+      floatingActionButton: new Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          new FloatingActionButton(
+              heroTag: "0", child: const Icon(FontAwesomeIcons.plus), onPressed: () => openProductAdd()),
+          new Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: new FloatingActionButton(
+                heroTag: "1", child: const Icon(FontAwesomeIcons.barcode), onPressed: () => openBarcodeSearch()),
+          ),
+        ],
+      ),
       body: new ListView.builder(
         padding: kMaterialListPadding,
         itemCount: items.length,
@@ -207,7 +217,9 @@ class ScreenProductsState extends State<ScreenProducts> {
         return;
       }
       var res = await HttpQuery.executeJsonQuery("Products/GetProductCheck", params: {"barCode": searchPhrase});
-      if (res is Map) {
+      if (res is Map && res.containsKey("error")) {
+        Utils.showInSnackBar(_scaffoldKey, res["error"]);
+      } else if (!res.containsKey("error")) {
         await db.updateOrInsert("products", {
           "id": res['id'],
           "category": res['category'],
@@ -249,5 +261,10 @@ class ScreenProductsState extends State<ScreenProducts> {
   openSettings() async {
     await Routes.navigateTo(context, "/settings");
     getProducts();
+  }
+
+  openBarcodeSearch() {
+    searchBar.beginSearch(context);
+    searchBar.scan();
   }
 }

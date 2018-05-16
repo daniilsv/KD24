@@ -29,14 +29,19 @@ class HttpQuery {
       _headers["Authorization"] = User.localUser.tokenType + " " + User.localUser.token;
     }
     http.Response response;
-    if (method == "post") {
-      response = await http.post(hrefTo(action), body: params, headers: _headers);
-    } else if (method == "get") {
-      response = await http.get(
-        hrefTo(action, query: params),
-        headers: _headers,
-      );
+    try {
+      if (method == "post") {
+        response = await http.post(hrefTo(action), body: params, headers: _headers);
+      } else if (method == "get") {
+        response = await http.get(
+          hrefTo(action, query: params),
+          headers: _headers,
+        );
+      }
+    } on Exception {
+      return {"error": "Нет интернет соединения"};
     }
+
     try {
       var ret = json.decode(response.body);
       if (ret is Map) {
@@ -62,11 +67,11 @@ class HttpQuery {
       _headers["Authorization"] = User.localUser.tokenType + " " + User.localUser.token;
     }
     var client = new http.Client();
-    http.Response response = await client.post(hrefTo(action, query: query), headers: _headers, body: params);
+    http.Response response =
+    await client.post(hrefTo(action, query: query), headers: _headers, body: json.encode(params));
 
     try {
       var ret = json.decode(response.body);
-      print(ret);
       if (ret is Map) {
         if (ret.containsKey("Message")) return {"error": ret["Message"]};
 
@@ -74,6 +79,7 @@ class HttpQuery {
 
         if (ret.containsKey("error")) return {"error": ret["error"]};
       }
+      return ret;
     } on Exception {}
     if (response.statusCode == 202) {
       return {"success": true};

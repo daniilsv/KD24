@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shop_spy/classes/product.dart';
@@ -66,7 +65,7 @@ class SendData {
       });
     });
     print(data);
-    var ret = await HttpQuery.sendData("Prices/sendPriceArray", params: json.encode(data));
+    var ret = await HttpQuery.sendData("Prices/sendPriceArray", params: data);
 
     if ((ret as Map).containsKey("success")) {
       var db = new DataBase();

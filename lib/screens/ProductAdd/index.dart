@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
@@ -45,7 +44,6 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
     } else {
       form.save();
 
-//TODO:Image upload
       if (_imageFile != null) {
         img.Image image = img.decodeImage(_imageFile.readAsBytesSync());
         img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
@@ -58,20 +56,25 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
         print(ret);
       }
 
-      var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct",
-          params: json.encode([
-            {
-              "barCode": product.barcode,
-              "name": product.name,
-              "price0": product.price,
-              "price1": product.priceNew,
-              "date": Utils.getDateTimeNow(),
-              "isWeight": product.isWeight,
-              "isPackage": product.isPackage,
-              "weightPack": product.volumeValue
-            }
-          ]));
-      print(ret);
+      var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct", params: [
+        {
+          "barCode": product.barcode,
+          "retailerId": widget.shopId,
+          "name": product.name,
+          "price0": product.price,
+          "price1": product.priceNew,
+          "date": Utils.getDateTimeNow(),
+          "isWeight": product.isWeight,
+          "isPackage": product.isPackage,
+          "weightPack": product.volumeValue,
+          "isPackRetailer": product.isRetailerPackage
+        }
+      ]);
+      if (ret is List && ret[0] is Map && ret[0]['id'] is num) {
+        Navigator.pop(context, ret[0]['id']);
+      } else {
+        Utils.showInSnackBar(_scaffoldKey, "Что-то пошло не так");
+      }
     }
   }
 
@@ -133,51 +136,6 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
 
     Widget volume = new Row(
       children: <Widget>[
-//        const Text("Емкость"),
-//        new Padding(
-//          padding: new EdgeInsets.symmetric(horizontal: 20.0),
-//          child: new DropdownButton(
-//            onChanged: (String value) {
-//              setState(() {
-//                product.volume = value;
-//              });
-//            },
-//            value: product.volume ?? "Кол-во",
-//            items: [
-//              new DropdownMenuItem<String>(
-//                child: const Text("Вес"),
-//                value: "Вес",
-//              ),
-//              new DropdownMenuItem<String>(
-//                child: const Text("Объем"),
-//                value: "Объем",
-//              ),
-//              new DropdownMenuItem<String>(
-//                child: const Text("Кол-во"),
-//                value: "Кол-во",
-//              ),
-//            ],
-//          ),
-//        ),
-//        new Padding(
-//          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-//          child: const Text("Укажите"),
-//        ),
-//        new Expanded(
-//          child: new TextFormField(
-//            style: textStyle,
-//            keyboardType: TextInputType.number,
-//            validator: Validations.validateVolume,
-//            onSaved: (String value) {
-//              product.volumeValue = value;
-//            },
-//            decoration: new InputDecoration(
-//              hintText: product.volume ?? "Кол-во",
-//              hintStyle: hintStyle,
-//            ),
-//          ),
-//        ),
-//        new Text(product.volumeText),
         new InkWell(
           child: const Text("Весовой"),
           onTap: () {
@@ -216,7 +174,6 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: const Text("Вес"),
         ),
-
         new Expanded(
           child: new TextFormField(
             style: textStyle,

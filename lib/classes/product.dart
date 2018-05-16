@@ -20,6 +20,8 @@ class Product {
 
   int order;
 
+  bool isRetailerPackage = false;
+
   Product({this.id,
     this.shopId,
     this.name = "",
