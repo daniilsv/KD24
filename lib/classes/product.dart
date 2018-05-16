@@ -11,6 +11,7 @@ class Product {
 
   double price;
   String date;
+  bool isSale = false;
   double priceNew;
   String dateNew;
   bool isSaleNew = false;
@@ -21,6 +22,8 @@ class Product {
   int order;
 
   bool isRetailerPackage = false;
+
+  bool isUploaded;
 
   Product({this.id,
     this.shopId,
@@ -33,9 +36,11 @@ class Product {
     this.image = "",
     this.price = 0.0,
     this.date = "",
+    this.isSale = false,
     this.priceNew = 0.0,
     this.dateNew = "",
-    this.isSaleNew = false});
+    this.isSaleNew = false,
+    this.isUploaded = false});
 
   String get volumeText {
     switch (volume) {
@@ -64,8 +69,10 @@ class Product {
         image: json['image'] as String,
         price: json['price'] as double,
         date: json['date'],
+        isSale: json['is_sale'] == 1,
         priceNew: json['price_new'] as double,
         dateNew: json['date_new'],
         isSaleNew: json['is_sale_new'] == 1,
+        isUploaded: json['is_new_uploaded'] == 1,
       );
 }

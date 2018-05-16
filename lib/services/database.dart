@@ -42,14 +42,16 @@ CREATE TABLE shops (
    `shop_id` integer NOT NULL,
    `price` real DEFAULT NULL,
    `date` text DEFAULT NULL,
+   `is_sale` integer DEFAULT 0,
    `price_new` real DEFAULT NULL,
    `date_new` text DEFAULT NULL,
    `is_sale_new` integer DEFAULT 0,
+   `is_new_uploaded` integer DEFAULT 0,
    CONSTRAINT index_pid_shopid UNIQUE (`product_id`, `shop_id`)
 );
 ''');
     }, onUpgrade: (Database db, int versionOld, int versionNew) async {
-      if (versionOld < 5) needRecreate = true;
+      if (versionOld < 6) needRecreate = true;
     });
     if (needRecreate) {
       await close();

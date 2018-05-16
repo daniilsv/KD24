@@ -66,6 +66,39 @@ class ScreenProductState extends State<ScreenProduct> {
   void initState() {
     super.initState();
     getData();
+    fetchPrices();
+  }
+
+  List<Map<String, dynamic>> shopPrices = [];
+
+  fetchPrices() async {
+    var res = await HttpQuery.executeJsonQuery("Prices/${widget.id}");
+    if (res is Map && res.containsKey("error")) {
+      Utils.showInSnackBar(_scaffoldKey, res["error"]);
+      return;
+    }
+    List<Map<String, dynamic>> _shopPrices = [];
+
+    for (Map<String, dynamic> product in res) {
+      _shopPrices.add({
+        "product_id": product['productId'],
+        "shop_id": product['retailerId'],
+        "is_sale": product['typeId'],
+        "price": product['price1'],
+        "date": product['date']
+      });
+    }
+    var db = new DataBase();
+    await db.insertList("shop_products", _shopPrices);
+
+    shopPrices = await db
+        .select("s.name")
+        .joinLeft("shops", "s", "s.id=i.shop_id")
+        .filterEqual("product_id", widget.id)
+        .filterNotEqual("price", "0.0")
+        .orderBy("i.price")
+        .get<Map<String, dynamic>>("shop_products");
+    setState(() {});
   }
 
   @override
@@ -158,14 +191,36 @@ class ScreenProductState extends State<ScreenProduct> {
               borderWidth: 0.0,
               buttonColor: primaryColor,
             ),
-            product.priceNew != null
-                ? product.dateNew == null
+            product.isUploaded
                 ? new Text("Выгружено: ${product.price}", style: new TextStyle(color: Colors.green))
                 : new Text("Не выгружено: ${product.priceNew}", style: new TextStyle(color: Colors.red))
-                : const Text("")
           ],
         ),
       );
+    if (shopPrices.length != 0) {
+      Widget list = new ConstrainedBox(
+        constraints: new BoxConstraints(maxHeight: 400.0),
+        child: new ListView.builder(
+          padding: kMaterialListPadding,
+          itemCount: shopPrices.length,
+          itemBuilder: (BuildContext context, int index) {
+            return new Padding(
+              padding: new EdgeInsets.symmetric(vertical: 8.0),
+              child: new Row(
+                children: [
+                  new Text(shopPrices[index]['name']),
+                  new Expanded(
+                    child: const Text(""),
+                  ),
+                  new Text(shopPrices[index]['price'].toString()),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+      ((body as Padding).child as Column).children.add(list);
+    }
     Widget title = new Center(child: new CircularProgressIndicator());
     if (shop != null) {
       title = new ListTile(

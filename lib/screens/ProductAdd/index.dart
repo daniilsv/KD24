@@ -190,7 +190,27 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
         ),
       ],
     );
-
+    Row isRetailerPackRow = new Row(
+      children: <Widget>[
+        new InkWell(
+          child: const Text("Штрих-код назначен производителем"),
+          onTap: () {
+            setState(() {
+              product.isRetailerPackage = !product.isRetailerPackage;
+            });
+          },
+        ),
+        new Checkbox(
+          onChanged: (bool value) {
+            setState(() {
+              product.isRetailerPackage = value;
+            });
+          },
+          activeColor: Colors.orangeAccent,
+          value: product.isRetailerPackage,
+        ),
+      ],
+    );
     Widget salePrice = new Row(
       children: <Widget>[
         new InkWell(
@@ -277,6 +297,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
             ),
           ),
           new Divider(color: Colors.black),
+          isRetailerPackRow,
           volume,
           new InputField(
             hintText: "Цена",
