@@ -12,20 +12,22 @@ class RoundedButton extends StatelessWidget {
   final Color buttonColor;
 
   final TextStyle textStyle =
-  const TextStyle(color: const Color(0XFFFFFFFF), fontSize: 16.0, fontWeight: FontWeight.bold);
+      const TextStyle(color: const Color(0XFF000000), fontSize: 16.0, fontWeight: FontWeight.bold);
 
   //passing props in react style
-  RoundedButton({this.buttonName,
-    this.onTap,
-    this.height,
-    this.bottomMargin,
-    this.borderWidth,
-    this.width,
-    this.buttonColor,
-    this.margin});
+  RoundedButton(
+      {this.buttonName,
+      this.onTap,
+      this.height,
+      this.bottomMargin,
+      this.borderWidth,
+      this.width,
+      this.buttonColor,
+      this.margin});
 
   @override
   Widget build(BuildContext context) {
+    var _buttonColor = buttonColor ?? const Color(0XFFFF9000);
     if (borderWidth != 0.0)
       return (new InkWell(
         onTap: onTap,
@@ -35,7 +37,7 @@ class RoundedButton extends StatelessWidget {
           margin: margin ?? new EdgeInsets.only(bottom: bottomMargin),
           alignment: FractionalOffset.center,
           decoration: new BoxDecoration(
-              color: buttonColor,
+              color: _buttonColor,
               borderRadius: new BorderRadius.all(const Radius.circular(30.0)),
               border: new Border.all(color: const Color.fromRGBO(221, 221, 221, 1.0), width: borderWidth)),
           child: new Text(buttonName, style: textStyle),
@@ -50,7 +52,7 @@ class RoundedButton extends StatelessWidget {
           margin: margin ?? new EdgeInsets.only(bottom: bottomMargin),
           alignment: FractionalOffset.center,
           decoration: new BoxDecoration(
-            color: buttonColor,
+            color: _buttonColor,
             borderRadius: new BorderRadius.all(const Radius.circular(30.0)),
           ),
           child: new Text(buttonName, style: textStyle),

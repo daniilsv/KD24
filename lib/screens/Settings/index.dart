@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shop_spy/classes/config.dart';
 import 'package:shop_spy/classes/user.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
-import 'package:shop_spy/theme/style.dart';
 
 class ScreenSettings extends StatefulWidget {
   const ScreenSettings({Key key}) : super(key: key);
@@ -69,7 +68,6 @@ class ScreenSettingsState extends State<ScreenSettings> {
                             height: 50.0,
                             bottomMargin: 10.0,
                             borderWidth: 0.0,
-                            buttonColor: primaryColor,
                           ),
                         ],
                       ),

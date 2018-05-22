@@ -12,15 +12,10 @@ if (flutterRoot == null) {
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     compileSdkVersion 27
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
 
     lintOptions {
         disable 'InvalidPackage'
@@ -28,10 +23,10 @@ android {
 
     defaultConfig {
         applicationId "team.itis.kd24.shopspy"
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion 27
-        versionCode 5
-        versionName "1.5.2"
+        versionCode 7
+        versionName "1.8.4"
     }
 
     buildTypes {
@@ -46,5 +41,4 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }

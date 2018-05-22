@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shop_spy/classes/config.dart';
 import 'package:shop_spy/classes/product.dart';
@@ -8,16 +9,17 @@ import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Drawer/mainDrawer.dart';
 import 'package:shop_spy/components/Search/searchBar.dart';
 import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/screens/Products/categories_list.dart';
+import 'package:shop_spy/screens/Products/products_list.dart';
 import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/send_data.dart';
 import 'package:shop_spy/services/utils.dart';
 
 class ScreenProducts extends StatefulWidget {
-  ScreenProducts({Key key, this.shopId, this.category}) : super(key: key);
+  ScreenProducts({Key key, this.shopId}) : super(key: key);
 
   final int shopId;
-  final String category;
 
   @override
   ScreenProductsState createState() => new ScreenProductsState();
@@ -29,19 +31,59 @@ class ScreenProductsState extends State<ScreenProducts> {
   final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
 
   Shop shop;
-  var items = [];
+  String categoryName;
+  List<String> categories = [];
+  List<Product> products = [];
 
   String searchPhrase;
+  SearchBar searchBar;
+  bool isProducts = false;
+
+  getCategories() async {
+    categories = await loadCategories();
+    if (categories.length == 0 || new DateTime.now().difference(shop.last).inHours >= 14) {
+      new DataBase().update("shops", widget.shopId, {"last": new DateTime.now().toString()});
+      await fetchProducts();
+      categories = await loadCategories();
+    }
+    setState(() {});
+  }
+
+  Future<List<String>> loadCategories() async => await new DataBase()
+      .selectOnly("p.category")
+      .joinLeft("products", "p", "p.id=i.product_id")
+      .filterEqual("shop_id", widget.shopId)
+      .orderBy("p.category")
+      .groupBy("p.category")
+      .get<String>("shop_products", callback: (var row) => row['category']);
 
   getProducts() async {
+    products = await loadProducts();
+    if (searchPhrase == null && products.length == 0) {
+      await fetchProducts();
+    }
+    setState(() {});
+  }
+
+  fetchProducts() async {
+    try {
+      if (await Product.fetch(widget.shopId)) products = await loadProducts();
+    } catch (e) {
+      Utils.showInSnackBar(_scaffoldKey, e.toString());
+    }
+    setState(() {});
+  }
+
+  Future<List<Product>> loadProducts() async {
     List<Product> _items = [];
     var db = new DataBase();
     db
         .select("p.*")
         .joinLeft("products", "p", "p.id=i.product_id")
         .filterEqual("i.shop_id", widget.shopId)
-        .filterEqual("p.category", widget.category)
         .orderBy("p.name");
+
+    if (categoryName != null) db.filterEqual("p.category", categoryName);
 
     if (!Config.moveDownDone) {
       List<Product> rows = await db.get<Product>("shop_products", callback: (Map item) => new Product.fromJson(item));
@@ -52,55 +94,36 @@ class ScreenProductsState extends State<ScreenProducts> {
           .get<Product>("shop_products", callback: (Map item) => new Product.fromJson(item));
       _items.addAll(rows);
 
+      if (categoryName != null) db.filterEqual("p.category", categoryName);
       rows = await db
           .select("p.*")
           .joinLeft("products", "p", "p.id=i.product_id")
           .filterEqual("i.shop_id", widget.shopId)
-          .filterEqual("p.category", widget.category)
+          .filterEqual("p.category", categoryName)
           .orderBy("p.name")
           .filterNotNull("price_new")
           .get<Product>("shop_products", callback: (Map item) => new Product.fromJson(item));
       _items.addAll(rows);
     }
-    items = [];
-    if (searchPhrase != null && searchPhrase.length > 0) {
-      for (var product in _items) {
-        var a = Utils.compResult(product.name, searchPhrase);
-        var b = Utils.compResult(product.barcode, searchPhrase);
-        product.order = a > b ? a : b;
-        if (product.order > 10) items.add(product);
-      }
-      items.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
-    } else
-      items = _items;
-    setState(() {});
+    if (searchPhrase == null || searchPhrase.length == 0) return _items;
+    List<Product> items = [];
+    for (var product in _items) {
+      var a = Utils.compResult(product.name, searchPhrase);
+      var b = Utils.compResult(product.barcode, searchPhrase);
+      product.order = a > b ? a : b;
+      if (product.order > 10) items.add(product);
+    }
+    items.sort((a, b) => a.order > b.order ? -1 : a.order < b.order ? 1 : 0);
+    return items;
   }
 
-  SearchBar searchBar;
-
-  getAppBarTitle() async {
-    DataBase db = new DataBase();
-    shop = await db.getItemById("shops", widget.shopId, callback: (Map shop) => new Shop.fromJson(shop));
-  }
-
-  AppBar buildAppBar(BuildContext context) {
-    Widget title = const Text("");
-    if (shop != null)
-      title = new ListTile(
-        title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
-        subtitle: new Text(widget.category, style: new TextStyle(color: Colors.white)),
-      );
-    return new AppBar(
-      title: title,
-      actions: [searchBar.getSearchAction(context)],
-      backgroundColor: Colors.orange,
-    );
-  }
+  loadShop() async =>
+      shop = await new DataBase().getItemById("shops", widget.shopId, callback: (Map shop) => new Shop.fromJson(shop));
 
   @override
   void initState() {
     super.initState();
-    getAppBarTitle();
+    loadShop();
     searchBar = new SearchBar(
         inBar: true,
         setState: setState,
@@ -109,21 +132,53 @@ class ScreenProductsState extends State<ScreenProducts> {
         onClear: onSearchClear,
         buildDefaultAppBar: buildAppBar,
         needBarCodeCamera: true);
-    getProducts();
+    getCategories();
   }
 
   void onSearchType(String value) {
+    if (value == null) return onSearchClear();
     searchPhrase = value;
+    isProducts = true;
     getProducts();
   }
 
   void onSearchClear() {
-    searchPhrase = "";
-    getProducts();
+    searchPhrase = null;
+    if (categoryName == null)
+      setState(() {
+        isProducts = false;
+      });
+    else
+      getProducts();
+  }
+
+  AppBar buildAppBar(BuildContext context) {
+    Widget title = const Text("");
+    if (categoryName != null)
+      title = new ListTile(
+        title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
+        subtitle: new Text(categoryName, style: new TextStyle(color: Colors.white)),
+      );
+    else if (shop != null)
+      title = new ListTile(
+        title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
+      );
+
+    return new AppBar(
+      title: title,
+      actions: [searchBar.getSearchAction(context)],
+      backgroundColor: Colors.orange,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget body;
+    if (isProducts)
+      body = new ProductsList(products: products, openProduct: openProduct);
+    else
+      body = new CategoriesList(categories: categories, openCategory: openCategory);
+
     return new Scaffold(
       key: _scaffoldKey,
       drawer: new DrawerMain(
@@ -151,57 +206,7 @@ class ScreenProductsState extends State<ScreenProducts> {
           ),
         ],
       ),
-      body: new ListView.builder(
-        padding: kMaterialListPadding,
-        itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
-          Product product = items[index];
-          return new Row(children: [
-            new Expanded(
-                child: new Card(
-                  child: new MaterialButton(
-                      child: new Column(children: <Widget>[
-                        new ListTile(
-                          title: new Text(product.name),
-                          subtitle: new Text(product.barcode, style: new TextStyle(fontSize: 16.0)),
-                          leading: new Image(
-                            image: new AdvancedNetworkImage(
-                                HttpQuery.hrefTo("prodbasecontent/Images",
-                                    baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
-                                useDiskCache: true),
-                            fit: BoxFit.contain,
-                            height: 80.0,
-                            width: 40.0,
-                            alignment: Alignment.centerLeft,
-                          ),
-                        ),
-                        new Row(
-                          children: <Widget>[
-                            product.price != null
-                                ? new Text(product.price.toString() ?? "", style: new TextStyle(color: Colors.grey))
-                                : const Text(""),
-                            product.price != null ? new Icon(FontAwesomeIcons.arrowRight, size: 12.0) : const Text(""),
-                            product.priceNew == null
-                                ? const Icon(FontAwesomeIcons.times, color: Colors.red)
-                                : new Text(
-                                product.priceNew.toString() ?? "", style: new TextStyle(color: Colors.green)),
-                            new Padding(
-                                padding: new EdgeInsets.only(left: 10.0),
-                                child: new Text("за ${product.volumeValue} ${product.volumeText}")),
-                            product.priceNew != null && product.isSaleNew
-                                ? const Icon(FontAwesomeIcons.star)
-                                : const Text(""),
-                          ],
-                        ),
-                        new Padding(
-                          padding: new EdgeInsets.only(top: 5.0),
-                        )
-                      ]),
-                      onPressed: () => openProduct("/product/${widget.shopId}/${product.id}", index)),
-                ))
-          ]);
-        },
-      ),
+      body: body,
     );
   }
 
@@ -213,13 +218,13 @@ class ScreenProductsState extends State<ScreenProducts> {
           .getItem<Product>("products", callback: (Map item) => new Product.fromJson(item));
       if (prod != null) {
         await db.updateOrInsert("shop_products", {"product_id": prod.id, "shop_id": widget.shopId});
-        openProduct("/product/${widget.shopId}/${prod.id}", -1);
+        openProduct(prod.id);
         return;
       }
       var res = await HttpQuery.executeJsonQuery("Products/GetProductCheck", params: {"barCode": searchPhrase});
       if (res is Map && res.containsKey("error")) {
         Utils.showInSnackBar(_scaffoldKey, res["error"]);
-      } else if (!res.containsKey("error")) {
+      } else if (res is Map && !res.containsKey("error")) {
         await db.updateOrInsert("products", {
           "id": res['id'],
           "category": res['category'],
@@ -231,22 +236,37 @@ class ScreenProductsState extends State<ScreenProducts> {
           "image": res['image']
         });
         await db.updateOrInsert("shop_products", {"product_id": res['id'], "shop_id": widget.shopId});
-        openProduct("/product/${widget.shopId}/${res['id']}", -1);
+        openProduct(res['id']);
         return;
       }
     }
     var ret =
-    await Routes.navigateTo(context, "/shop/${widget.shopId}/add/$searchPhrase", transition: TransitionType.fadeIn);
+        await Routes.navigateTo(context, "/shop/${widget.shopId}/add/$searchPhrase", transition: TransitionType.fadeIn);
     if (ret is Product) {
       getProducts();
     }
   }
 
-  openProduct(String path, int i) async {
-    var ret = await Routes.navigateTo(context, path, transition: TransitionType.fadeIn);
+  openProduct(int productId) async {
+    var ret =
+        await Routes.navigateTo(context, "/product/${widget.shopId}/$productId", transition: TransitionType.fadeIn);
     if (ret is Product) {
       getProducts();
     }
+  }
+
+  openCategory(String categoryName) async {
+    ModalRoute.of(context).addLocalHistoryEntry(new LocalHistoryEntry(onRemove: () {
+      setState(() {
+        this.categoryName = null;
+        isProducts = false;
+      });
+    }));
+    this.categoryName = categoryName;
+    getProducts();
+    setState(() {
+      isProducts = true;
+    });
   }
 
   openSendModal() async {
@@ -254,17 +274,21 @@ class ScreenProductsState extends State<ScreenProducts> {
     if (ret != null && ret is String) {
       Navigator.pop(context);
       Utils.showInSnackBar(_scaffoldKey, ret);
-      getProducts();
+      if (isProducts)
+        getProducts();
+      else
+        getCategories();
     }
   }
 
   openSettings() async {
     await Routes.navigateTo(context, "/settings");
-    getProducts();
+    if (isProducts) getProducts();
   }
 
   openBarcodeSearch() {
     searchBar.beginSearch(context);
+    isProducts = true;
     searchBar.scan();
   }
 }

@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
-import 'package:shop_spy/screens/Camera/index.dart';
-import 'package:shop_spy/screens/Categories/index.dart';
 import 'package:shop_spy/screens/Login/index.dart';
 import 'package:shop_spy/screens/Product/index.dart';
 import 'package:shop_spy/screens/ProductAdd/index.dart';
@@ -18,9 +16,6 @@ class Routes {
     _router.define("/login",
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenLogin()));
 
-    _router.define("/camera",
-        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenCamera()));
-
     _router.define("/settings",
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenSettings()));
 
@@ -28,25 +23,19 @@ class Routes {
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) => new ScreenShops()));
 
     _router.define("/shop/:id", handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-      return new ScreenCategories(shopId: int.parse(params["id"][0]));
+      return new ScreenProducts(shopId: int.parse(params["id"][0]));
     }));
-
-    _router.define("/shop/:shop_id/:category",
-        handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenProducts(shopId: int.parse(params["shop_id"][0]), category: params["category"][0]);
-        }));
 
     _router.define("/product/:shop_id/:id",
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          return new ScreenProduct(shopId: int.parse(params["shop_id"][0]), id: int.parse(params["id"][0]));
-        }));
+      return new ScreenProduct(shopId: int.parse(params["shop_id"][0]), id: int.parse(params["id"][0]));
+    }));
 
     _router.define("/shop/:shop_id/add/:phrase",
         handler: new Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-          String phrase = params["phrase"][0] != "null" ? params["phrase"][0] : null;
-          return new ScreenProductAdd(
-              shopId: int.parse(params["shop_id"][0]), phrase: phrase);
-        }));
+      String phrase = params["phrase"][0] != "null" ? params["phrase"][0] : null;
+      return new ScreenProductAdd(shopId: int.parse(params["shop_id"][0]), phrase: phrase);
+    }));
   }
 
   static Future<dynamic> navigateTo(BuildContext context, String route,

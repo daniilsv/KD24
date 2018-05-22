@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shop_spy/classes/product.dart';
 import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
 import 'package:shop_spy/components/TextFields/inputField.dart';
+import 'package:shop_spy/components/networkimage/flutter_advanced_networkimage.dart';
 import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/utils.dart';
 import 'package:shop_spy/services/validations.dart';
-import 'package:shop_spy/theme/style.dart';
 
 class ScreenProduct extends StatefulWidget {
   ScreenProduct({Key key, this.shopId, this.id}) : super(key: key);
@@ -118,14 +117,8 @@ class ScreenProductState extends State<ScreenProduct> {
                         baseUrl: "prodbasestorage.blob.core.windows.net", file: product.image),
                     useDiskCache: true),
                 fit: BoxFit.contain,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.8,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height / 3,
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height / 3,
                 alignment: Alignment.center,
               ),
             ),
@@ -143,23 +136,21 @@ class ScreenProductState extends State<ScreenProduct> {
             ),
             product.price != null
                 ? new Row(
-              children: <Widget>[
-                const Text("Старая цена: "),
-                new Padding(
-                  padding: new EdgeInsets.only(left: 20.0),
-                  child: new Text(product.price.toString()),
-                )
-              ],
-            )
+                    children: <Widget>[
+                      const Text("Старая цена: "),
+                      new Padding(
+                        padding: new EdgeInsets.only(left: 20.0),
+                        child: new Text(product.price.toString()),
+                      )
+                    ],
+                  )
                 : const Text(""),
             new InputField(
               hintText: "Price",
               obscureText: false,
               initialText: "",
               textInputType: TextInputType.number,
-              textStyle: textStyle,
               validateFunction: Validations.validatePrice,
-              textFieldColor: textFieldColor,
               icon: FontAwesomeIcons.rubleSign,
               iconColor: Colors.black,
               bottomMargin: 20.0,
@@ -189,7 +180,6 @@ class ScreenProductState extends State<ScreenProduct> {
               height: 50.0,
               bottomMargin: 10.0,
               borderWidth: 0.0,
-              buttonColor: primaryColor,
             ),
             product.isUploaded
                 ? new Text("Выгружено: ${product.price}", style: new TextStyle(color: Colors.green))

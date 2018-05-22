@@ -110,7 +110,7 @@ class SearchBar {
     ModalRoute.of(context).addLocalHistoryEntry(new LocalHistoryEntry(onRemove: () {
       setState(() {
         controller.text = "";
-        onType("");
+        onType(null);
         _isSearching = false;
       });
     }));

@@ -22,7 +22,8 @@ CREATE TABLE config (
       db.execute('''
 CREATE TABLE shops ( 
   `id` integer primary key, 
-  `name` text not null)
+  `name` text not null,
+  `last` integer)
 ''');
       db.execute('''
   CREATE TABLE products (
@@ -51,7 +52,7 @@ CREATE TABLE shops (
 );
 ''');
     }, onUpgrade: (Database db, int versionOld, int versionNew) async {
-      if (versionOld < 6) needRecreate = true;
+      if (versionOld < 7) needRecreate = true;
     });
     if (needRecreate) {
       await close();
@@ -389,7 +390,6 @@ CREATE TABLE shops (
     this.resetFilters();
     List keys = data.keys.map((var l) => "`$l`=?").toList();
     String sql = "UPDATE $table SET ${keys.join(",")} WHERE ${where.replaceAll("i\.", "")};";
-    print(sql);
     return db.rawUpdate(sql, data.values.toList());
   }
 

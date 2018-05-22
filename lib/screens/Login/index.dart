@@ -8,7 +8,6 @@ import 'package:shop_spy/routes.dart';
 import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/validations.dart';
-import 'package:shop_spy/theme/style.dart';
 
 class ScreenLogin extends StatefulWidget {
   const ScreenLogin({Key key}) : super(key: key);
@@ -37,7 +36,7 @@ class ScreenLoginState extends State<ScreenLogin> {
       form.save();
       HttpQuery
           .executeJsonQuery("token",
-          params: {'username': user.username, 'password': user.password, 'grant_type': "password"}, method: "post")
+              params: {'username': user.username, 'password': user.password, 'grant_type': "password"}, method: "post")
           .then((var data) {
         if (data.containsKey("error")) {
           showInSnackBar(data["error"]);
@@ -84,9 +83,7 @@ class ScreenLoginState extends State<ScreenLogin> {
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery
-        .of(context)
-        .size;
+    final Size screenSize = MediaQuery.of(context).size;
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
@@ -115,8 +112,6 @@ class ScreenLoginState extends State<ScreenLogin> {
                               initialText: user.username ?? "daniil",
                               obscureText: false,
                               textInputType: TextInputType.text,
-                              textStyle: textStyle,
-                              textFieldColor: textFieldColor,
                               icon: FontAwesomeIcons.user,
                               iconColor: Colors.black,
                               bottomMargin: 20.0,
@@ -129,8 +124,6 @@ class ScreenLoginState extends State<ScreenLogin> {
                               obscureText: true,
                               initialText: "9626961246",
                               textInputType: TextInputType.text,
-                              textStyle: textStyle,
-                              textFieldColor: textFieldColor,
                               icon: FontAwesomeIcons.lock,
                               iconColor: Colors.black,
                               bottomMargin: 30.0,
@@ -145,7 +138,6 @@ class ScreenLoginState extends State<ScreenLogin> {
                             height: 50.0,
                             bottomMargin: 10.0,
                             borderWidth: 0.0,
-                            buttonColor: primaryColor,
                           ),
                         ],
                       ),
