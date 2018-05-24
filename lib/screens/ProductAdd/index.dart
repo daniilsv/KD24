@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
@@ -35,45 +36,19 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
 
   TextEditingController barcodeController;
 
-  void _handleSubmitted() async {
+  _handleSubmitted() async {
     FormState form = formKey.currentState;
     if (!form.validate()) {
       autovalidate = true;
       Utils.showInSnackBar(_scaffoldKey, 'Please fix the errors in red before submitting.');
     } else {
       form.save();
-
-      if (_imageFile != null) {
-        img.Image image = img.decodeImage(_imageFile.readAsBytesSync());
-        img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
-        List<int> imageBytes = thumbnail.getBytes();
-        var ret = await HttpQuery.sendData("ImagesUpload", params: imageBytes, query: {
-          "name": "${product.barcode}.${_imageFile.path
-              .split(".")
-              .last}"
-        });
-        print(ret);
-      }
-
-      var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct", params: [
-        {
-          "barCode": product.barcode,
-          "retailerId": widget.shopId,
-          "name": product.name,
-          "price0": product.price,
-          "price1": product.priceNew,
-          "date": Utils.getDateTimeNow(),
-          "isWeight": product.isWeight,
-          "isPackage": product.isPackage,
-          "weightPack": product.volumeValue,
-          "isPackRetailer": product.isRetailerPackage
-        }
-      ]);
-      if (ret is List && ret[0] is Map && ret[0]['id'] is num) {
-        Navigator.pop(context, ret[0]['id']);
-      } else {
-        Utils.showInSnackBar(_scaffoldKey, "Что-то пошло не так");
-      }
+      Navigator.of(context).push(new MaterialPageRoute(
+          builder: (_) => new UploadWidget(
+                product: product,
+                image: _imageFile,
+                shopId: widget.shopId,
+              )));
     }
   }
 
@@ -165,81 +140,6 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
       decoration: new BoxDecoration(color: Colors.grey.shade200.withOpacity(0.5)),
     );
 
-    Widget volume = new Row(
-      children: <Widget>[
-        new InkWell(
-          child: const Text("Весовой"),
-          onTap: () {
-            setState(() {
-              product.isWeight = !product.isWeight;
-            });
-          },
-        ),
-        new Checkbox(
-          onChanged: (bool value) {
-            setState(() {
-              product.isWeight = value;
-            });
-          },
-          activeColor: Colors.orangeAccent,
-          value: product.isWeight,
-        ),
-        new InkWell(
-          child: const Text("Упакованный"),
-          onTap: () {
-            setState(() {
-              product.isPackage = !product.isPackage;
-            });
-          },
-        ),
-        new Checkbox(
-          onChanged: (bool value) {
-            setState(() {
-              product.isPackage = value;
-            });
-          },
-          activeColor: Colors.orangeAccent,
-          value: product.isPackage,
-        ),
-        new Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: const Text("Вес"),
-        ),
-        new Expanded(
-          child: new TextFormField(
-            keyboardType: TextInputType.number,
-            validator: Validations.validateVolumeValue,
-            onSaved: (String value) {
-              product.volumeValue = value;
-            },
-            decoration: new InputDecoration(
-              hintText: "Кг",
-            ),
-          ),
-        ),
-      ],
-    );
-    Row isRetailerPackRow = new Row(
-      children: <Widget>[
-        new InkWell(
-          child: const Text("Штрих-код назначен производителем"),
-          onTap: () {
-            setState(() {
-              product.isRetailerPackage = !product.isRetailerPackage;
-            });
-          },
-        ),
-        new Checkbox(
-          onChanged: (bool value) {
-            setState(() {
-              product.isRetailerPackage = value;
-            });
-          },
-          activeColor: Colors.orangeAccent,
-          value: product.isRetailerPackage,
-        ),
-      ],
-    );
     Widget salePrice = new Row(
       children: <Widget>[
         new InkWell(
@@ -318,8 +218,89 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
             ),
           ),
           new Divider(color: Colors.black),
-          isRetailerPackRow,
-          volume,
+          new Row(
+            children: <Widget>[
+              new InkWell(
+                child: const Text("Штрих-код назначен магазином"),
+                onTap: () {
+                  setState(() {
+                    product.isRetailerPackage = !product.isRetailerPackage;
+                  });
+                },
+              ),
+              new Checkbox(
+                onChanged: (bool value) {
+                  setState(() {
+                    product.isRetailerPackage = value;
+                  });
+                },
+                activeColor: Colors.orangeAccent,
+                value: product.isRetailerPackage,
+              ),
+            ],
+          ),
+          new Row(
+            children: <Widget>[
+              new InkWell(
+                child: const Text("Весовой"),
+                onTap: () {
+                  setState(() {
+                    product.isWeight = !product.isWeight;
+                  });
+                },
+              ),
+              new Checkbox(
+                onChanged: (bool value) {
+                  setState(() {
+                    product.isWeight = value;
+                  });
+                },
+                activeColor: Colors.orangeAccent,
+                value: product.isWeight,
+              ),
+            ],
+          ),
+          new Row(
+            children: <Widget>[
+              new InkWell(
+                child: const Text("Упакованный"),
+                onTap: () {
+                  setState(() {
+                    product.isPackage = !product.isPackage;
+                  });
+                },
+              ),
+              new Checkbox(
+                onChanged: (bool value) {
+                  setState(() {
+                    product.isPackage = value;
+                  });
+                },
+                activeColor: Colors.orangeAccent,
+                value: product.isPackage,
+              ),
+            ],
+          ),
+          new Row(
+            children: <Widget>[
+              new Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: const Text("Вес"),
+              ),
+              new Expanded(
+                child: new TextFormField(
+                  keyboardType: TextInputType.number,
+                  validator: Validations.validateVolumeValue,
+                  onSaved: (String value) {
+                    product.volumeValue = value;
+                  },
+                  decoration: new InputDecoration(
+                    hintText: "Кг",
+                  ),
+                ),
+              )
+            ],
+          ),
           new InputField(
             hintText: "Цена",
             obscureText: false,
@@ -390,5 +371,70 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
       } else {}
     } on FormatException {} catch (e) {}
+  }
+}
+
+class UploadWidget extends StatefulWidget {
+  final int shopId;
+
+  final Product product;
+
+  final File image;
+
+  UploadWidget({Key key, this.product, this.image, this.shopId}) : super(key: key);
+
+  @override
+  _UploadWidgetState createState() => new _UploadWidgetState();
+}
+
+class _UploadWidgetState extends State<UploadWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        body: new Center(
+            child: new Column(
+      children: <Widget>[new Text("Загружаем новый товар"), new CircularProgressIndicator()],
+    )));
+  }
+
+  @override
+  void initState() {
+    uploadData();
+    super.initState();
+  }
+
+  void uploadData() async {
+    if (widget.image != null) {
+      widget.image.readAsBytes().then((List<int> bytes) {
+        img.Image image = img.decodeImage(bytes);
+        img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
+        HttpQuery.sendData("ImagesUpload", params: base64.encode(thumbnail.getBytes()), query: {
+          "name": "${widget.product.barcode}.${widget.image.path
+              .split(".")
+              .last}"
+        });
+      });
+    }
+
+    var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct", params: [
+      {
+        "barCode": widget.product.barcode,
+        "retailerId": widget.shopId,
+        "name": widget.product.name,
+        "price0": widget.product.price,
+        "price1": widget.product.priceNew,
+        "date": Utils.getDateTimeNow(),
+        "isWeight": widget.product.isWeight,
+        "isPackage": widget.product.isPackage,
+        "weightPack": widget.product.volumeValue,
+        "isPackRetailer": widget.product.isRetailerPackage
+      }
+    ]);
+    if (ret is List && ret[0] is Map && ret[0]['id'] is num) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+    } else {
+      Navigator.pop(context);
+    }
   }
 }
