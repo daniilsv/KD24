@@ -38,6 +38,7 @@ class ScreenProductsState extends State<ScreenProducts> {
   String searchPhrase;
   SearchBar searchBar;
   bool isProducts = false;
+  bool isLoading = false;
 
   getCategories() async {
     categories = await loadCategories();
@@ -58,11 +59,16 @@ class ScreenProductsState extends State<ScreenProducts> {
       .get<String>("shop_products", callback: (var row) => row['category']);
 
   getProducts() async {
+    setState(() {
+      isLoading = true;
+    });
     products = await loadProducts();
     if (searchPhrase == null && products.length == 0) {
       await fetchProducts();
     }
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   fetchProducts() async {
@@ -175,7 +181,7 @@ class ScreenProductsState extends State<ScreenProducts> {
   Widget build(BuildContext context) {
     Widget body;
     if (isProducts)
-      body = new ProductsList(products: products, openProduct: openProduct);
+      body = new ProductsList(products: products, openProduct: openProduct, isLoading: isLoading);
     else
       body = new CategoriesList(categories: categories, openCategory: openCategory);
 

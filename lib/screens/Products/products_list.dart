@@ -7,15 +7,18 @@ import 'package:shop_spy/services/http_query.dart';
 typedef void OpenProductCallback(int productId);
 
 class ProductsList extends StatelessWidget {
-  const ProductsList({this.products, this.openProduct});
+  const ProductsList({this.products, this.openProduct, this.isLoading});
 
   final List<Product> products;
   final OpenProductCallback openProduct;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) return new Center(child: new CircularProgressIndicator());
+
     if (products.length == 0) {
-      return new Center(child: new CircularProgressIndicator());
+      return new Center(child: const Text("Нет товаров по этой выборке"));
     }
 
     return new ListView.builder(
