@@ -24,7 +24,7 @@ class ShopsList extends StatelessWidget {
               child: new MaterialButton(
                   height: 60.0,
                   child:new SizedBox(
-                    height: 50.0,
+                    height: 30.0,
                     width: MediaQuery.of(context).size.width,
                     child: new FittedBox(
                       fit: BoxFit.contain,
