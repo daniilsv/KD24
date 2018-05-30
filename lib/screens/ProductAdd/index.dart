@@ -201,7 +201,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
               children: <Widget>[
                 new Expanded(
                   child: new TextFormField(
-                    keyboardType: TextInputType.text,
+                    keyboardType: TextInputType.number,
                     validator: Validations.validateBarcode,
                     controller: barcodeController,
                     onSaved: (String value) {

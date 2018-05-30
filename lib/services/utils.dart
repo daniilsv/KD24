@@ -66,23 +66,7 @@ class Utils {
 
   static int compResult(String st1, String st2) {
     String st0;
-    int i,
-        j,
-        k1,
-        k2,
-        l0,
-        l1,
-        l2,
-        lmin,
-        lminc,
-        lm,
-        lmm,
-        mltot = 0,
-        ml = 0,
-        mp = 0,
-        mc = 0,
-        mpp = 0,
-        mlp = 0;
+    int i, j, k1, k2, l0, l1, l2, lmin, lminc, lm, lmm, mltot = 0, ml = 0, mp = 0, mc = 0, mpp = 0, mlp = 0;
     st1 = st1.replaceAll("\\s+", " ").toLowerCase().replaceAll("ё", "е");
     st2 = st2.replaceAll("\\s+", " ").toLowerCase().replaceAll("ё", "е");
     lmin = 3;
@@ -182,12 +166,8 @@ class Utils {
       return false;
     }
 
-    if (code.length == 12) {
-      code = '0' + code;
-    }
-
-    if (code.length == 8) {
-      code = '00000' + code;
+    if (code.length < 13) {
+      for (int i = 0; i < 13 - code.length; i++) code = '0' + code;
     }
 
     for (var i = 1; i < code.length; i += 2) {
@@ -198,10 +178,6 @@ class Utils {
     var control = s1 + s2 * 3;
     control = 10 - control % 10;
 
-    if (control == int.parse(code[code.length - 1])) {
-      return true;
-    } else {
-      return false;
-    }
+    return control % 10 == int.parse(code[code.length - 1]);
   }
 }
