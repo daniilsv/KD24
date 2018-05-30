@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shop_spy/classes/user.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
 import 'package:shop_spy/components/TextFields/inputField.dart';
-import 'package:shop_spy/routes.dart';
+import 'package:shop_spy/screens/Shops/index.dart';
 import 'package:shop_spy/services/database.dart';
 import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/validations.dart';
@@ -63,7 +63,7 @@ class ScreenLoginState extends State<ScreenLogin> {
           "value": _userData.tokenExpires + new DateTime.now().millisecondsSinceEpoch ~/ 1000,
         });
 
-        Routes.navigateTo(context, "/shops", replace: true);
+        runApp(new MaterialApp(title: "KD 24", home: new ScreenShops()));
       });
     }
   }
