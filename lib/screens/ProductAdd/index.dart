@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
@@ -12,7 +11,6 @@ import 'package:shop_spy/classes/shop.dart';
 import 'package:shop_spy/components/Buttons/roundedButton.dart';
 import 'package:shop_spy/components/TextFields/inputField.dart';
 import 'package:shop_spy/services/database.dart';
-import 'package:shop_spy/services/http_query.dart';
 import 'package:shop_spy/services/utils.dart';
 import 'package:shop_spy/services/validations.dart';
 
@@ -27,8 +25,8 @@ class ScreenProductAdd extends StatefulWidget {
 }
 
 class ScreenProductAddState extends State<ScreenProductAdd> {
-  final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   ScrollController scrollController = new ScrollController();
   bool autovalidate = false;
   Shop shop;
@@ -40,15 +38,34 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
     FormState form = formKey.currentState;
     if (!form.validate()) {
       autovalidate = true;
-      Utils.showInSnackBar(_scaffoldKey, 'Please fix the errors in red before submitting.');
+      Utils.showInSnackBar(_scaffoldKey, 'Исправьте ошибки в форме...');
     } else {
       form.save();
-      Navigator.of(context).push(new MaterialPageRoute(
-          builder: (_) => new UploadWidget(
-                product: product,
-                image: _imageFile,
-                shopId: widget.shopId,
-              )));
+
+      String imagePath = "";
+      if (_imageFile != null) {
+        imagePath = _imageFile.path;
+        _imageFile.readAsBytes().then((_) {
+          img.Image image = img.decodeImage(_);
+          img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
+          _imageFile.delete().then((__) => new File(imagePath).writeAsBytes(thumbnail.getBytes(), flush: true));
+        });
+      }
+
+      await new DataBase().insert("new_products", <String, dynamic>{
+        "barCode": product.barcode,
+        "retailerId": widget.shopId,
+        "name": product.name,
+        "price0": product.price,
+        "price1": product.priceNew,
+        "date": Utils.getDateTimeNow(),
+        "isWeight": product.isWeight,
+        "isPackage": product.isPackage,
+        "weightPack": product.volumeValue,
+        "isPackRetailer": product.isRetailerPackage,
+        "image": imagePath
+      });
+      Navigator.pop(context, "Новый товар добавлен в очередь на выгрузку");
     }
   }
 
@@ -371,70 +388,5 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
       } else {}
     } on FormatException {} catch (e) {}
-  }
-}
-
-class UploadWidget extends StatefulWidget {
-  final int shopId;
-
-  final Product product;
-
-  final File image;
-
-  UploadWidget({Key key, this.product, this.image, this.shopId}) : super(key: key);
-
-  @override
-  _UploadWidgetState createState() => new _UploadWidgetState();
-}
-
-class _UploadWidgetState extends State<UploadWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-        body: new Center(
-            child: new Column(
-      children: <Widget>[new Text("Загружаем новый товар"), new CircularProgressIndicator()],
-    )));
-  }
-
-  @override
-  void initState() {
-    uploadData();
-    super.initState();
-  }
-
-  void uploadData() async {
-    if (widget.image != null) {
-      widget.image.readAsBytes().then((List<int> bytes) {
-        img.Image image = img.decodeImage(bytes);
-        img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
-        HttpQuery.sendData("ImagesUpload", params: base64.encode(thumbnail.getBytes()), query: {
-          "name": "${widget.product.barcode}.${widget.image.path
-              .split(".")
-              .last}"
-        });
-      });
-    }
-
-    var ret = await HttpQuery.sendData("Products/SendTodayCheckProduct", params: [
-      {
-        "barCode": widget.product.barcode,
-        "retailerId": widget.shopId,
-        "name": widget.product.name,
-        "price0": widget.product.price,
-        "price1": widget.product.priceNew,
-        "date": Utils.getDateTimeNow(),
-        "isWeight": widget.product.isWeight,
-        "isPackage": widget.product.isPackage,
-        "weightPack": widget.product.volumeValue,
-        "isPackRetailer": widget.product.isRetailerPackage
-      }
-    ]);
-    if (ret is List && ret[0] is Map && ret[0]['id'] is num) {
-      Navigator.pop(context);
-      Navigator.pop(context);
-    } else {
-      Navigator.pop(context);
-    }
   }
 }

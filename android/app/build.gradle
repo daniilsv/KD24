@@ -25,8 +25,8 @@ android {
         applicationId "team.itis.kd24.shopspy"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 8
-        versionName "1.8.6"
+        versionCode 10
+        versionName "1.9.2"
     }
 
     buildTypes {

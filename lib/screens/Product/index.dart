@@ -29,15 +29,11 @@ class ScreenProductState extends State<ScreenProduct> {
   bool autovalidate = false;
   Shop shop;
 
-  void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(value)));
-  }
-
   void _handleSubmitted() async {
     FormState form = formKey.currentState;
     if (!form.validate()) {
       autovalidate = true;
-      showInSnackBar('Please fix the errors in red before submitting.');
+      Utils.showInSnackBar(_scaffoldKey, 'Исправьте ошибки в форме...');
     } else {
       form.save();
       product.dateNew = Utils.getDateTimeNow();
@@ -45,7 +41,7 @@ class ScreenProductState extends State<ScreenProduct> {
       await db.filterEqual("product_id", product.id).filterEqual("shop_id", widget.shopId).updateFiltered(
           "shop_products",
           {"is_sale_new": product.isSaleNew ? 1 : 0, "price_new": product.priceNew, "date_new": product.dateNew});
-      Navigator.pop(context, product);
+      Navigator.pop(context, "Изменение цены добавлено в очередь на выгрузку");
     }
   }
 

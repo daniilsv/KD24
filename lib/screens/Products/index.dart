@@ -253,7 +253,8 @@ class ScreenProductsState extends State<ScreenProducts> {
     }
     var ret =
         await Routes.navigateTo(context, "/shop/${widget.shopId}/add/$searchPhrase", transition: TransitionType.fadeIn);
-    if (ret is Product) {
+    if (ret is String) {
+      Utils.showInSnackBar(_scaffoldKey, ret);
       getProducts();
     }
   }
@@ -261,7 +262,8 @@ class ScreenProductsState extends State<ScreenProducts> {
   openProduct(int productId) async {
     var ret =
         await Routes.navigateTo(context, "/product/${widget.shopId}/$productId", transition: TransitionType.fadeIn);
-    if (ret is Product) {
+    if (ret is String) {
+      Utils.showInSnackBar(_scaffoldKey, ret);
       getProducts();
     }
   }

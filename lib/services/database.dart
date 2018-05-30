@@ -51,8 +51,24 @@ CREATE TABLE shops (
    CONSTRAINT index_pid_shopid UNIQUE (`product_id`, `shop_id`)
 );
 ''');
+      db.execute('''
+  CREATE TABLE new_products (
+   `barCode` text,
+   `retailerId` integer NOT NULL,
+   `name` text NOT NULL,
+   `price0` real DEFAULT NULL,
+   `price1` real DEFAULT NULL,
+   `date` text DEFAULT NULL,
+   `isWeight` integer DEFAULT 0,
+   `isPackage` integer DEFAULT 0,
+   `weightPack` real DEFAULT NULL,
+   `isPackRetailer` integer DEFAULT 0,
+   `image` text DEFAULT NULL,
+   CONSTRAINT index_bcd_rtid UNIQUE (`barCode`, `retailerId`)
+);
+''');
     }, onUpgrade: (Database db, int versionOld, int versionNew) async {
-      if (versionOld < 7) needRecreate = true;
+      if (versionOld < 8) needRecreate = true;
     });
     if (needRecreate) {
       await close();

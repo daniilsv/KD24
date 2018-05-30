@@ -4,7 +4,7 @@ import 'package:shop_spy/services/database.dart';
 
 class Config {
   static final String dbName = "shop_spy";
-  static final int dbVersion = 7;
+  static final int dbVersion = 8;
 
   static bool moveDownDone;
 
