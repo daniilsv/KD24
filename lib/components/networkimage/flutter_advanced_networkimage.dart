@@ -385,7 +385,7 @@ Future<int> getDiskCachedImagesSize() async {
 }
 
 /// Disk cache info value.
-Map<String, String> _diskCacheInfo = {};
+Map<String, dynamic> _diskCacheInfo = {};
 
 /// Use a [LruMap] to store the memory cache.
 LruMap<String, Uint8List> _imageMemoryCache = new LruMap(maximumSize: 128);
