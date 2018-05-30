@@ -163,7 +163,10 @@ class ScreenProductsState extends State<ScreenProducts> {
     if (categoryName != null)
       title = new ListTile(
         title: new Text(shop.name, style: new TextStyle(color: Colors.white)),
-        subtitle: new Text(categoryName, style: new TextStyle(color: Colors.white)),
+        subtitle: new FittedBox(
+          fit: BoxFit.fitWidth,
+          child: new Text(categoryName, style: new TextStyle(color: Colors.white)),
+        ),
       );
     else if (shop != null)
       title = new ListTile(

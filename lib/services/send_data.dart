@@ -43,9 +43,11 @@ class SendData {
             },
           ));
 
-        return new Container(
-          child: new ConstrainedBox(
-            constraints: new BoxConstraints(maxHeight: 132.0),
+        return new SizedBox(
+          height: 150.0,
+          width: MediaQuery.of(context).size.width,
+          child: new FittedBox(
+            fit: BoxFit.contain,
             child: new Padding(padding: new EdgeInsets.all(16.0), child: new Column(children: body)),
           ),
         );

@@ -22,11 +22,14 @@ class ShopsList extends StatelessWidget {
           new Expanded(
             child: new Card(
               child: new MaterialButton(
-                  height: 50.0,
-                  child: new ListTile(
-                    title: new Text(
-                      shop.name,
-                      style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                  height: 60.0,
+                  child:new SizedBox(
+                    height: 50.0,
+                    width: MediaQuery.of(context).size.width,
+                    child: new FittedBox(
+                      fit: BoxFit.contain,
+                      alignment: Alignment.centerLeft,
+                      child: new Text(shop.name),
                     ),
                   ),
                   onPressed: () => Routes.navigateTo(context, "/shop/${shop.id}")),
