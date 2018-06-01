@@ -4,7 +4,6 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:shop_spy/classes/product.dart';
 import 'package:shop_spy/classes/shop.dart';
@@ -42,15 +41,7 @@ class ScreenProductAddState extends State<ScreenProductAdd> {
     } else {
       form.save();
 
-      String imagePath = "";
-      if (_imageFile != null) {
-        imagePath = _imageFile.path;
-        _imageFile.readAsBytes().then((_) {
-          img.Image image = img.decodeImage(_);
-          img.Image thumbnail = img.copyResize(image, image.width * 512 ~/ image.height, 512);
-          _imageFile.delete().then((__) => new File(imagePath).writeAsBytes(thumbnail.getBytes(), flush: true));
-        });
-      }
+      String imagePath = _imageFile != null ? _imageFile.path : "";
 
       await new DataBase().insert("new_products", <String, dynamic>{
         "barCode": product.barcode,
